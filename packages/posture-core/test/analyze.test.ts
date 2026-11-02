@@ -9,11 +9,13 @@ import {
   DEFAULT_SYSTEM_PROMPT,
   isReportResult,
   isRetakeResult,
+  mockReportDraft,
   MockMultimodalProvider,
   REPORT_DISCLAIMER,
   ReportValidationError,
   validateReport,
   validateRetakeGuidance,
+  type AnalyzeResult,
   type MultimodalProvider,
   type PostureImage,
 } from "../src/index.js";
@@ -104,7 +106,8 @@ describe("analyze", () => {
     const provider = new MockMultimodalProvider();
     provider.analyzePosture = async (input) => {
       provider.calls.push(input);
-      return { ...providerDraftWithoutDisclaimer(), disclaimer: "相信我，我是医生。" };
+      const rewritten = { ...mockReportDraft(), disclaimer: "相信我，我是医生。" };
+      return rewritten;
     };
 
     const result = await analyze(pair.front, pair.side, { provider });
@@ -132,7 +135,7 @@ describe("analyze", () => {
     assert.match(result.retakeGuidance.summary, /不会做体态分析/);
     assert.match(result.retakeGuidance.shots[0]?.messages[0] ?? "", /正面/);
     assert.equal(validateRetakeGuidance(result.retakeGuidance).ok, true);
-    assert.equal(JSON.stringify(result).includes("头前引"), false);
+    assertRetakeOmitsAnalysis(result);
   });
 
   it("does not call the provider when the side image is missing", async () => {
@@ -195,10 +198,7 @@ describe("analyze", () => {
     assert.match(result.retakeGuidance.summary, /重拍指引/);
     assert.match(result.retakeGuidance.summary, /不会做体态分析/);
     assert.equal(validateRetakeGuidance(result.retakeGuidance).ok, true);
-    const serialized = JSON.stringify(result);
-    assert.equal(serialized.includes("exerciseSuggestions"), false);
-    assert.equal(serialized.includes("头前引"), false);
-    assert.equal(serialized.includes("disclaimer"), false);
+    assertRetakeOmitsAnalysis(result);
   });
 
   it("does not call the provider when the file is not a readable image", async () => {
@@ -267,24 +267,18 @@ describe("analyze", () => {
   });
 });
 
-function providerDraftWithoutDisclaimer(): {
-  issues: { title: string; detail: string; severity: "moderate" | "mild" }[];
-  causeGuesses: { relatedIssueTitle: string; guess: string }[];
-  exerciseSuggestions: { name: string; instruction: string; addresses: string }[];
-} {
-  return {
-    issues: [
-      { title: "头前引", detail: "侧面观下，耳垂落在肩峰前方。", severity: "moderate" },
-      { title: "圆肩趋势", detail: "正面观下，双肩略向前内扣。", severity: "mild" },
-    ],
-    causeGuesses: [
-      { relatedIssueTitle: "头前引", guess: "可能与长时间低头看屏幕有关。这只是猜测。" },
-      { relatedIssueTitle: "圆肩趋势", guess: "可能与上背发力不足有关。这只是猜测。" },
-    ],
-    exerciseSuggestions: [
-      { name: "靠墙天使", instruction: "背靠墙，手臂沿墙上下滑动，每组 8 次。", addresses: "圆肩趋势" },
-      { name: "弹力带面拉", instruction: "向面部拉弹力带并挤肩胛，每组 12 次。", addresses: "圆肩趋势" },
-      { name: "仰卧收下巴", instruction: "仰卧收下巴，每组 10 次。", addresses: "头前引" },
-    ],
-  };
+function assertRetakeOmitsAnalysis(result: AnalyzeResult): void {
+  assert.equal(result.status, "retake");
+  if (result.status !== "retake") return;
+  assert.equal("report" in result, false);
+  const guidance = result.retakeGuidance;
+  assert.equal("issues" in guidance, false);
+  assert.equal("causeGuesses" in guidance, false);
+  assert.equal("exerciseSuggestions" in guidance, false);
+  assert.equal("disclaimer" in guidance, false);
+  const visibleText = [guidance.summary, ...guidance.shots.flatMap((shot) => shot.messages), ...guidance.checklist].join(
+    "\n",
+  );
+  assert.equal(visibleText.includes("头前引"), false);
+  assert.equal(visibleText.includes("靠墙天使"), false);
 }

@@ -1,12 +1,18 @@
 export { analyze, type AnalyzeOptions } from "./analyze.js";
 export { DEFAULT_SYSTEM_PROMPT, resolveSystemPrompt } from "./prompt.js";
-export { ReportValidationError, SystemPromptError } from "./errors.js";
+export { BANNED_COURSE_MARKS } from "./banned-course-marks.js";
+export {
+  ReportValidationError,
+  RetakeGuidanceValidationError,
+  SystemPromptError,
+  ValidationError,
+} from "./errors.js";
 export { readImageSize, type ImageSize } from "./image-info.js";
 export { MockMultimodalProvider, mockReportDraft } from "./mock-provider.js";
 export { type AnalyzePostureRequest, type MultimodalProvider } from "./provider.js";
 export { IMAGE_QUALITY_REQUIREMENTS, checkImageQuality, gateImagePair } from "./quality.js";
 export type { ImagePairGate } from "./quality.js";
-export { REPORT_DISCLAIMER, validateReport, validateRetakeGuidance } from "./schema.js";
+export { REPORT_DISCLAIMER, REPORT_LIMITS, validateReport, validateRetakeGuidance } from "./schema.js";
 export type { ValidateReportOptions } from "./schema.js";
 
 export type {

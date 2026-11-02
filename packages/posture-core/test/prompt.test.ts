@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { DEFAULT_SYSTEM_PROMPT, resolveSystemPrompt, SystemPromptError } from "../src/index.js";
+import { BANNED_COURSE_MARKS, DEFAULT_SYSTEM_PROMPT, resolveSystemPrompt, SystemPromptError } from "../src/index.js";
 
 describe("system prompt", () => {
   it("defaults to the fixed Simplified Chinese training prompt", () => {
@@ -15,6 +15,9 @@ describe("system prompt", () => {
     assert.match(DEFAULT_SYSTEM_PROMPT, /通用健身/);
     assert.match(DEFAULT_SYSTEM_PROMPT, /禁止/);
     assert.match(DEFAULT_SYSTEM_PROMPT, /猜测/);
+    for (const mark of BANNED_COURSE_MARKS) {
+      assert.equal(DEFAULT_SYSTEM_PROMPT.includes(mark), true, mark);
+    }
   });
 
   it("reads a replacement prompt from a path", () => {

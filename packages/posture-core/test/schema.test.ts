@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { REPORT_DISCLAIMER, validateReport, validateRetakeGuidance } from "../src/index.js";
+import {
+  BANNED_COURSE_MARKS,
+  REPORT_DISCLAIMER,
+  ReportValidationError,
+  RetakeGuidanceValidationError,
+  validateReport,
+  validateRetakeGuidance,
+  ValidationError,
+} from "../src/index.js";
 import { mockReportDraft } from "../src/mock-provider.js";
 
 function withSuggestions(count: number): unknown {
@@ -60,6 +68,26 @@ describe("validateReport", () => {
     assert.match(result.errors.join("\n"), /guess/);
   });
 
+  it("rejects every mark from the shared banned-course list", () => {
+    const draft = mockReportDraft();
+    const seed = draft.exerciseSuggestions[0];
+    if (seed === undefined) {
+      throw new Error("mock draft is missing a suggestion");
+    }
+    for (const mark of BANNED_COURSE_MARKS) {
+      const result = validateReport(
+        {
+          ...draft,
+          exerciseSuggestions: [{ ...seed, name: mark }, ...draft.exerciseSuggestions.slice(1)],
+        },
+        { stampDisclaimer: true },
+      );
+      assert.equal(result.ok, false, mark);
+      if (result.ok) continue;
+      assert.ok(result.errors.some((error) => error.includes(mark)));
+    }
+  });
+
   it("rejects branded course names in exercise suggestions", () => {
     const draft = mockReportDraft();
     const result = validateReport(
@@ -106,5 +134,24 @@ describe("validateRetakeGuidance", () => {
       issues: [],
     });
     assert.equal(result.ok, false);
+  });
+});
+
+describe("validation errors", () => {
+  it("puts report and retake failures in one ValidationError family", () => {
+    const reportError = new ReportValidationError(["issues must be an array"]);
+    const retakeError = new RetakeGuidanceValidationError(["shots must be a non-empty array"]);
+
+    assert.ok(reportError instanceof ValidationError);
+    assert.ok(reportError instanceof ReportValidationError);
+    assert.equal(reportError instanceof RetakeGuidanceValidationError, false);
+    assert.deepEqual(reportError.errors, ["issues must be an array"]);
+
+    assert.ok(retakeError instanceof ValidationError);
+    assert.ok(retakeError instanceof RetakeGuidanceValidationError);
+    assert.equal(retakeError instanceof ReportValidationError, false);
+    assert.equal(retakeError.name, "RetakeGuidanceValidationError");
+    assert.match(retakeError.message, /retake guidance/);
+    assert.deepEqual(retakeError.errors, ["shots must be a non-empty array"]);
   });
 });

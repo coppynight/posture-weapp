@@ -1,3 +1,4 @@
+import { BANNED_COURSE_MARKS } from "./banned-course-marks.js";
 import type {
   CauseGuess,
   ExerciseSuggestion,
@@ -15,6 +16,25 @@ import type {
 export const REPORT_DISCLAIMER =
   "本结果只供日常体态与健身训练参考，不是医疗诊断，也不能代替医师、物理治疗师或其他合格医务人员的当面评估。如有疼痛、麻木、损伤、头晕或其他不适，请停止相关训练并寻求专业医疗帮助。";
 
+/** Count and length bounds for report and retake-guidance fields. */
+export const REPORT_LIMITS = {
+  issues: { min: 1, max: 8 },
+  causeGuesses: { min: 1, max: 8 },
+  exerciseSuggestions: { min: 3, max: 5 },
+  shots: { max: 2 },
+  checklist: { min: 2 },
+  title: { maxLength: 40 },
+  detail: { maxLength: 500 },
+  guess: { maxLength: 500 },
+  relatedIssueTitle: { maxLength: 40 },
+  suggestionName: { maxLength: 40 },
+  instruction: { maxLength: 500 },
+  addresses: { maxLength: 40 },
+  summary: { maxLength: 300 },
+  message: { maxLength: 300 },
+  checklistItem: { maxLength: 200 },
+} as const;
+
 const ISSUE_SEVERITIES: readonly IssueSeverity[] = ["mild", "moderate", "marked"];
 const QUALITY_REASONS: readonly QualityReasonCode[] = [
   "missing",
@@ -27,7 +47,6 @@ const QUALITY_REASONS: readonly QualityReasonCode[] = [
   "blurry",
   "invalid_signal",
 ];
-const BANNED_COURSE_MARKS = ["帕梅拉", "刘畊宏", "Keep", "莱美", "Peloton", "Bikram", "尊巴", "Zumba"] as const;
 const ANALYSIS_KEYS = ["issues", "causeGuesses", "exerciseSuggestions", "disclaimer", "report"] as const;
 
 export interface ValidateReportOptions {
@@ -99,7 +118,7 @@ export function validateRetakeGuidance(input: unknown): ValidationResult<RetakeG
   }
   if (typeof parsed.value.summary !== "string" || parsed.value.summary.trim() === "") {
     errors.push("summary must be a non-empty string");
-  } else if (parsed.value.summary.length > 300) {
+  } else if (parsed.value.summary.length > REPORT_LIMITS.summary.maxLength) {
     errors.push("summary is too long");
   }
 
@@ -127,8 +146,8 @@ function readIssues(input: unknown, errors: string[]): PostureIssue[] | null {
     errors.push("issues must be an array");
     return null;
   }
-  if (input.length < 1 || input.length > 8) {
-    errors.push("issues must contain 1 to 8 items");
+  if (input.length < REPORT_LIMITS.issues.min || input.length > REPORT_LIMITS.issues.max) {
+    errors.push(`issues must contain ${REPORT_LIMITS.issues.min} to ${REPORT_LIMITS.issues.max} items`);
   }
   const issues: PostureIssue[] = [];
   const titles = new Set<string>();
@@ -137,8 +156,8 @@ function readIssues(input: unknown, errors: string[]): PostureIssue[] | null {
       errors.push(`issues[${index}] must be an object`);
       return;
     }
-    const title = readText(item.title, `issues[${index}].title`, 40, errors);
-    const detail = readText(item.detail, `issues[${index}].detail`, 500, errors);
+    const title = readText(item.title, `issues[${index}].title`, REPORT_LIMITS.title.maxLength, errors);
+    const detail = readText(item.detail, `issues[${index}].detail`, REPORT_LIMITS.detail.maxLength, errors);
     if (!ISSUE_SEVERITIES.includes(item.severity as IssueSeverity)) {
       errors.push(`issues[${index}].severity must be mild, moderate, or marked`);
     }
@@ -162,8 +181,10 @@ function readCauseGuesses(
     errors.push("causeGuesses must be an array");
     return null;
   }
-  if (input.length < 1 || input.length > 8) {
-    errors.push("causeGuesses must contain 1 to 8 items");
+  if (input.length < REPORT_LIMITS.causeGuesses.min || input.length > REPORT_LIMITS.causeGuesses.max) {
+    errors.push(
+      `causeGuesses must contain ${REPORT_LIMITS.causeGuesses.min} to ${REPORT_LIMITS.causeGuesses.max} items`,
+    );
   }
   const titles = new Set((issues ?? []).map((issue) => issue.title));
   const guesses: CauseGuess[] = [];
@@ -172,13 +193,18 @@ function readCauseGuesses(
       errors.push(`causeGuesses[${index}] must be an object`);
       return;
     }
-    const guess = readText(item.guess, `causeGuesses[${index}].guess`, 500, errors);
+    const guess = readText(item.guess, `causeGuesses[${index}].guess`, REPORT_LIMITS.guess.maxLength, errors);
     if (guess && !/可能|猜测/.test(guess)) {
       errors.push(`causeGuesses[${index}].guess must be phrased as a guess (include 可能 or 猜测)`);
     }
     let relatedIssueTitle: string | undefined;
     if (item.relatedIssueTitle !== undefined) {
-      const related = readText(item.relatedIssueTitle, `causeGuesses[${index}].relatedIssueTitle`, 40, errors);
+      const related = readText(
+        item.relatedIssueTitle,
+        `causeGuesses[${index}].relatedIssueTitle`,
+        REPORT_LIMITS.relatedIssueTitle.maxLength,
+        errors,
+      );
       if (related && !titles.has(related)) {
         errors.push(`causeGuesses[${index}].relatedIssueTitle does not match an issue title`);
       }
@@ -196,8 +222,13 @@ function readSuggestions(input: unknown, errors: string[]): ExerciseSuggestion[]
     errors.push("exerciseSuggestions must be an array");
     return null;
   }
-  if (input.length < 3 || input.length > 5) {
-    errors.push("exerciseSuggestions must contain 3 to 5 items");
+  if (
+    input.length < REPORT_LIMITS.exerciseSuggestions.min ||
+    input.length > REPORT_LIMITS.exerciseSuggestions.max
+  ) {
+    errors.push(
+      `exerciseSuggestions must contain ${REPORT_LIMITS.exerciseSuggestions.min} to ${REPORT_LIMITS.exerciseSuggestions.max} items`,
+    );
   }
   const suggestions: ExerciseSuggestion[] = [];
   input.forEach((item, index) => {
@@ -205,11 +236,27 @@ function readSuggestions(input: unknown, errors: string[]): ExerciseSuggestion[]
       errors.push(`exerciseSuggestions[${index}] must be an object`);
       return;
     }
-    const name = readText(item.name, `exerciseSuggestions[${index}].name`, 40, errors);
-    const instruction = readText(item.instruction, `exerciseSuggestions[${index}].instruction`, 500, errors);
+    const name = readText(
+      item.name,
+      `exerciseSuggestions[${index}].name`,
+      REPORT_LIMITS.suggestionName.maxLength,
+      errors,
+    );
+    const instruction = readText(
+      item.instruction,
+      `exerciseSuggestions[${index}].instruction`,
+      REPORT_LIMITS.instruction.maxLength,
+      errors,
+    );
     let addresses: string | undefined;
     if (item.addresses !== undefined) {
-      addresses = readText(item.addresses, `exerciseSuggestions[${index}].addresses`, 40, errors) ?? undefined;
+      addresses =
+        readText(
+          item.addresses,
+          `exerciseSuggestions[${index}].addresses`,
+          REPORT_LIMITS.addresses.maxLength,
+          errors,
+        ) ?? undefined;
     }
     const combined = [name, instruction, addresses].filter((part): part is string => Boolean(part)).join(" ");
     const banned = BANNED_COURSE_MARKS.find((mark) => combined.includes(mark));
@@ -228,8 +275,8 @@ function readShots(input: unknown, code: unknown, errors: string[]): RetakeShot[
     errors.push("shots must be a non-empty array");
     return null;
   }
-  if (input.length > 2) {
-    errors.push("shots must contain at most 2 items");
+  if (input.length > REPORT_LIMITS.shots.max) {
+    errors.push(`shots must contain at most ${REPORT_LIMITS.shots.max} items`);
   }
   const shots: RetakeShot[] = [];
   const seen = new Set<ShotView>();
@@ -297,20 +344,25 @@ function readMessages(input: unknown, index: number, errors: string[]): string[]
   }
   const messages: string[] = [];
   input.forEach((message, messageIndex) => {
-    const text = readText(message, `shots[${index}].messages[${messageIndex}]`, 300, errors);
+    const text = readText(
+      message,
+      `shots[${index}].messages[${messageIndex}]`,
+      REPORT_LIMITS.message.maxLength,
+      errors,
+    );
     if (text) messages.push(text);
   });
   return errors.length > 0 ? null : messages;
 }
 
 function readChecklist(input: unknown, errors: string[]): string[] | null {
-  if (!Array.isArray(input) || input.length < 2) {
-    errors.push("checklist must contain at least 2 items");
+  if (!Array.isArray(input) || input.length < REPORT_LIMITS.checklist.min) {
+    errors.push(`checklist must contain at least ${REPORT_LIMITS.checklist.min} items`);
     return null;
   }
   const checklist: string[] = [];
   input.forEach((item, index) => {
-    const text = readText(item, `checklist[${index}]`, 200, errors);
+    const text = readText(item, `checklist[${index}]`, REPORT_LIMITS.checklistItem.maxLength, errors);
     if (text) checklist.push(text);
   });
   return errors.length > 0 ? null : checklist;

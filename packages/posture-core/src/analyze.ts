@@ -1,4 +1,4 @@
-import { ReportValidationError } from "./errors.js";
+import { ReportValidationError, RetakeGuidanceValidationError } from "./errors.js";
 import { gateImagePair } from "./quality.js";
 import type { MultimodalProvider } from "./provider.js";
 import { resolveSystemPrompt } from "./prompt.js";
@@ -33,7 +33,7 @@ export async function analyze(
   if (gated.status === "retake") {
     const validatedGuidance = validateRetakeGuidance(gated.retakeGuidance);
     if (!validatedGuidance.ok) {
-      throw new Error(`Internal retake guidance failed validation: ${validatedGuidance.errors.join("; ")}`);
+      throw new RetakeGuidanceValidationError(validatedGuidance.errors);
     }
     return { status: "retake", retakeGuidance: validatedGuidance.value };
   }
