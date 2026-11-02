@@ -1,6 +1,6 @@
 # posture-weapp
 
-Training-oriented posture selfies for a WeChat mini program. This repository currently contains the T1 analysis library only.
+Training-oriented posture selfies for a WeChat mini program. This repository contains the analysis library and a stateless HTTP API.
 
 ## Library
 
@@ -11,8 +11,13 @@ Training-oriented posture selfies for a WeChat mini program. This repository cur
 
 The quality gate and the missing-photo check both return before the swappable `MultimodalProvider` hard-analysis call. Tests use `MockMultimodalProvider` and do not call a paid model.
 
+## API
+
+[`packages/posture-api`](packages/posture-api) exposes `POST /v1/analyze`. It accepts the two photos, calls the library, and returns `{ report }` or `{ retakeGuidance }`. Image bytes and reports stay in that request. Vendor credentials come from environment variables.
+
 ```bash
 npm install
 npm test
 npm run typecheck
+npm run smoke
 ```

@@ -5,9 +5,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w posture-core",
-    "test": "npm test -w posture-core",
-    "typecheck": "npm run typecheck -w posture-core"
+    "build": "npm run build -w posture-core && npm run build -w posture-api",
+    "test": "npm test -w posture-core && npm test -w posture-api",
+    "typecheck": "npm run typecheck -w posture-core && npm run typecheck -w posture-api",
+    "start": "npm start -w posture-api",
+    "smoke": "npm run smoke -w posture-api"
   },
   "engines": {
     "node": ">=20"
