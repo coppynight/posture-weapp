@@ -1,0 +1,5 @@
+{
+  "description": "Front photo clears the quality gate. Side photo is a 32×32 PNG and must return retake guidance without hard analysis.",
+  "front": "ok-front.png",
+  "side": "poor-side.png"
+}

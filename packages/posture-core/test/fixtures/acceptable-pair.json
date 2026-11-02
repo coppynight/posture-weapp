@@ -1,0 +1,5 @@
+{
+  "description": "Both photos are valid PNGs whose shorter edge is at least 480 pixels.",
+  "front": "ok-front.png",
+  "side": "ok-side.png"
+}
