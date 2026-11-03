@@ -30,6 +30,38 @@ describe("interpret T2 responses", () => {
     assert.equal("retakeGuidance" in outcome, false);
   });
 
+  it("renders sections without rechecking core field rules", () => {
+    const outcome = interpretAnalyzeResponse(
+      200,
+      JSON.stringify({
+        report: {
+          disclaimer,
+          issues: [{ title: "头前引", detail: "侧面可见。", severity: "not-a-core-code" }],
+          causeGuesses: [{ guess: "一句观察。" }],
+          exerciseSuggestions: [{ name: "靠墙天使", instruction: "背靠墙抬臂。" }],
+        },
+      }),
+    );
+    assert.equal(outcome.kind, "report");
+    if (outcome.kind !== "report") return;
+    assert.equal(outcome.report.issues[0]?.severity, "not-a-core-code");
+
+    const retake = interpretAnalyzeResponse(
+      422,
+      JSON.stringify({
+        retakeGuidance: {
+          summary: "请重拍侧面。",
+          shots: [{ view: "side", messages: ["请重拍侧面。"] }],
+          checklist: ["头顶入画"],
+        },
+      }),
+    );
+    assert.equal(retake.kind, "retake");
+    if (retake.kind !== "retake") return;
+    assert.equal(retake.retakeGuidance.summary, "请重拍侧面。");
+    assert.equal(retake.retakeGuidance.shots[0]?.view, "side");
+  });
+
   it("refuses a report that omits the disclaimer", () => {
     const report = sampleReport(disclaimer);
     const { disclaimer: _removed, ...rest } = report;

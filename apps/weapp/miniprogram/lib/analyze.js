@@ -5,7 +5,6 @@ exports.createFetchTransport = createFetchTransport;
 exports.analyzePhotos = analyzePhotos;
 exports.interpretAnalyzeResponse = interpretAnalyzeResponse;
 const copy_js_1 = require("./copy.js");
-const SEVERITIES = ["mild", "moderate", "marked"];
 const MEDIA_TYPES = ["image/jpeg", "image/png", "image/webp"];
 /** Join the configurable API origin with the T2 analyze path. */
 function analyzeUrl(baseUrl) {
@@ -72,15 +71,13 @@ function interpretAnalyzeResponse(status, text) {
     const retake = readRetake(parsed.retakeGuidance);
     if (report && retake)
         return { kind: "error", message: copy_js_1.COPY.badResponse };
-    if (status === 200 && isRecord(parsed.report) && report === null && retake === null) {
-        if (typeof parsed.report.disclaimer !== "string" || parsed.report.disclaimer.trim() === "") {
-            return { kind: "error", message: copy_js_1.COPY.missingDisclaimer };
-        }
-    }
     if (status === 200 && report)
         return { kind: "report", report };
     if ((status === 200 || status === 400 || status === 422) && retake) {
         return { kind: "retake", retakeGuidance: retake };
+    }
+    if (status === 200 && isRecord(parsed.report) && !hasDisclaimer(parsed.report)) {
+        return { kind: "error", message: copy_js_1.COPY.missingDisclaimer };
     }
     const message = readServerMessage(parsed.message);
     if (message)
@@ -90,137 +87,40 @@ function interpretAnalyzeResponse(status, text) {
 function isPayload(photo) {
     return MEDIA_TYPES.includes(photo.mediaType) && photo.dataBase64.trim() !== "";
 }
+/**
+ * Enough structure to render the page. Limits, enums, and wording rules stay on the server.
+ */
 function readReport(value) {
-    if (!isRecord(value) || value.schemaVersion !== 1)
+    if (!isRecord(value) || !hasDisclaimer(value))
         return null;
-    if (typeof value.disclaimer !== "string" || value.disclaimer.trim() === "")
+    if (!Array.isArray(value.issues) || !Array.isArray(value.causeGuesses) || !Array.isArray(value.exerciseSuggestions)) {
         return null;
-    const issues = readIssues(value.issues);
-    const causeGuesses = readCauses(value.causeGuesses);
-    const exerciseSuggestions = readExercises(value.exerciseSuggestions);
-    if (!issues || !causeGuesses || !exerciseSuggestions)
-        return null;
+    }
     return {
         schemaVersion: 1,
-        issues,
-        causeGuesses,
-        exerciseSuggestions,
-        disclaimer: value.disclaimer.trim(),
+        disclaimer: value.disclaimer,
+        issues: value.issues,
+        causeGuesses: value.causeGuesses,
+        exerciseSuggestions: value.exerciseSuggestions,
     };
 }
 function readRetake(value) {
-    if (!isRecord(value) || value.schemaVersion !== 1)
-        return null;
-    if (value.code !== "missing_image" && value.code !== "poor_quality")
+    if (!isRecord(value))
         return null;
     if (typeof value.summary !== "string" || value.summary.trim() === "")
         return null;
-    if ("issues" in value || "causeGuesses" in value || "exerciseSuggestions" in value || "disclaimer" in value) {
-        return null;
-    }
-    const shots = readRetakeShots(value.shots);
-    const checklist = readChecklist(value.checklist);
-    if (!shots || !checklist)
+    if (!Array.isArray(value.shots) || !Array.isArray(value.checklist))
         return null;
     return {
         schemaVersion: 1,
         code: value.code,
-        summary: value.summary.trim(),
-        shots,
-        checklist,
+        summary: value.summary,
+        shots: value.shots,
+        checklist: value.checklist,
     };
 }
-function readIssues(value) {
-    if (!Array.isArray(value) || value.length === 0)
-        return null;
-    const issues = [];
-    for (const item of value) {
-        if (!isRecord(item))
-            return null;
-        if (typeof item.title !== "string" || item.title.trim() === "")
-            return null;
-        if (typeof item.detail !== "string" || item.detail.trim() === "")
-            return null;
-        if (!SEVERITIES.includes(item.severity))
-            return null;
-        issues.push({
-            title: item.title.trim(),
-            detail: item.detail.trim(),
-            severity: item.severity,
-        });
-    }
-    return issues;
-}
-function readCauses(value) {
-    if (!Array.isArray(value) || value.length === 0)
-        return null;
-    const causes = [];
-    for (const item of value) {
-        if (!isRecord(item) || typeof item.guess !== "string" || item.guess.trim() === "")
-            return null;
-        const cause = { guess: item.guess.trim() };
-        if (item.relatedIssueTitle !== undefined) {
-            if (typeof item.relatedIssueTitle !== "string" || item.relatedIssueTitle.trim() === "")
-                return null;
-            cause.relatedIssueTitle = item.relatedIssueTitle.trim();
-        }
-        causes.push(cause);
-    }
-    return causes;
-}
-function readExercises(value) {
-    if (!Array.isArray(value) || value.length === 0)
-        return null;
-    const exercises = [];
-    for (const item of value) {
-        if (!isRecord(item))
-            return null;
-        if (typeof item.name !== "string" || item.name.trim() === "")
-            return null;
-        if (typeof item.instruction !== "string" || item.instruction.trim() === "")
-            return null;
-        const exercise = {
-            name: item.name.trim(),
-            instruction: item.instruction.trim(),
-        };
-        if (item.addresses !== undefined) {
-            if (typeof item.addresses !== "string" || item.addresses.trim() === "")
-                return null;
-            exercise.addresses = item.addresses.trim();
-        }
-        exercises.push(exercise);
-    }
-    return exercises;
-}
-function readRetakeShots(value) {
-    if (!Array.isArray(value) || value.length === 0)
-        return null;
-    const shots = [];
-    for (const item of value) {
-        if (!isRecord(item))
-            return null;
-        if (item.view !== "front" && item.view !== "side")
-            return null;
-        if (item.problem !== "missing" && item.problem !== "poor_quality")
-            return null;
-        const reasons = readChecklist(item.reasons);
-        const messages = readChecklist(item.messages);
-        if (!reasons || !messages)
-            return null;
-        shots.push({ view: item.view, problem: item.problem, reasons, messages });
-    }
-    return shots;
-}
-function readChecklist(value) {
-    if (!Array.isArray(value) || value.length === 0)
-        return null;
-    const lines = [];
-    for (const item of value) {
-        if (typeof item !== "string" || item.trim() === "")
-            return null;
-        lines.push(item.trim());
-    }
-    return lines;
+function hasDisclaimer(value) {
+    return typeof value.disclaimer === "string" && value.disclaimer.trim() !== "";
 }
 function readServerMessage(value) {
     if (typeof value !== "string")

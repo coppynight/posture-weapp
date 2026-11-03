@@ -1,3 +1,5 @@
+const { COMPRESS_QUALITY } = require("../config.js");
+
 function readPhoto(shot) {
   return new Promise((resolve, reject) => {
     const fsm = wx.getFileSystemManager();
@@ -26,7 +28,7 @@ function readPhoto(shot) {
     }
     wx.compressImage({
       src: shot.tempFilePath,
-      quality: 60,
+      quality: COMPRESS_QUALITY,
       success(res) {
         const compressed = res.tempFilePath;
         if (!compressed || compressed === shot.tempFilePath) {

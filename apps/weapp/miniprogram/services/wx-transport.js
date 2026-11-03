@@ -1,3 +1,5 @@
+const { ANALYZE_TIMEOUT_MS } = require("../config.js");
+
 function createWxTransport() {
   return {
     postJson(url, body) {
@@ -6,7 +8,7 @@ function createWxTransport() {
           url,
           method: "POST",
           data: body,
-          timeout: 60000,
+          timeout: ANALYZE_TIMEOUT_MS,
           header: {
             accept: "application/json",
             "content-type": "application/json",

@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
+
+const require = createRequire(import.meta.url);
+const { ANALYZE_TIMEOUT_MS, COMPRESS_QUALITY } = require("../miniprogram/config.js") as {
+  ANALYZE_TIMEOUT_MS: number;
+  COMPRESS_QUALITY: number;
+};
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -78,5 +85,12 @@ describe("mini program shell", () => {
     assert.match(read("miniprogram/pages/report/report.js"), /reLaunch/);
     assert.match(read("miniprogram/app.js"), /onAppHide/);
     assert.match(read("miniprogram/config.js"), /apiBaseUrl/);
+    const appJson = JSON.parse(read("miniprogram/app.json")) as { networkTimeout: { request: number } };
+    assert.equal(appJson.networkTimeout.request, ANALYZE_TIMEOUT_MS);
+    assert.match(read("miniprogram/services/wx-transport.js"), /ANALYZE_TIMEOUT_MS/);
+    assert.doesNotMatch(read("miniprogram/services/wx-transport.js"), /\b60000\b/);
+    assert.match(read("miniprogram/services/photos.js"), /COMPRESS_QUALITY/);
+    assert.equal(typeof COMPRESS_QUALITY, "number");
+    assert.doesNotMatch(read("miniprogram/services/photos.js"), /quality:\s*\d+/);
   });
 });

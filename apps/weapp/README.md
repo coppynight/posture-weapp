@@ -27,7 +27,7 @@ npm run typecheck
 npm run smoke
 ```
 
-`npm test` and `npm run smoke` in this package start the T2 server with the mock provider. They do not call a paid model. The smoke run checks three guest paths: one photo is blocked before any upload, two acceptable photos return a report whose disclaimer is the core text, and a poor side photo returns retake guidance without a report.
+`npm test` and `npm run smoke` in this package start the T2 server with the mock provider. They do not call a paid model. The smoke run checks three guest paths: one photo is blocked before any upload, two acceptable photos return a report whose disclaimer is the core text, and a poor side photo returns retake guidance without a report. `npm test` runs `check:emit`, which rebuilds `miniprogram/lib` and fails if those files differ from the commit.
 
 ## WeChat DevTools
 
