@@ -1,0 +1,21 @@
+page {
+  background: #f3efe6;
+  color: #1c1915;
+  font-size: 30rpx;
+  line-height: 1.5;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.4;
+  border-radius: 0;
+}
+
+button::after {
+  border: none;
+}

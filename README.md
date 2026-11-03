@@ -1,6 +1,6 @@
 # posture-weapp
 
-Training-oriented posture selfies for a WeChat mini program. This repository contains the analysis library and a stateless HTTP API.
+Training-oriented posture selfies for a WeChat mini program. This repository contains the analysis library, a stateless HTTP API, and the guest mini program.
 
 ## Library
 
@@ -14,6 +14,10 @@ The quality gate and the missing-photo check both return before the swappable `M
 ## API
 
 [`packages/posture-api`](packages/posture-api) exposes `POST /v1/analyze`. It accepts the two photos, calls the library, and returns `{ report }` or `{ retakeGuidance }`. Image bytes and reports stay in that request. Vendor credentials come from environment variables.
+
+## Mini program
+
+[`apps/weapp`](apps/weapp) is the guest client. It collects a front photo and a side photo, calls `POST /v1/analyze`, and shows either the training report or retake guidance. The report page leads with the non-medical disclaimer. Photos and the report stay in memory for the current visit; there is no history page and no login. Set the API origin in `apps/weapp/miniprogram/config.js`. The DevTools checklist is in the app README.
 
 ```bash
 npm install

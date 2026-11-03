@@ -1,0 +1,57 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">{{front.label}} + {{side.label}}</text>
+    <text class="title">{{title}}</text>
+    <text class="lead">{{lead}}</text>
+  </view>
+
+  <view class="slot {{front.filled ? 'slot-filled' : ''}} {{front.needsRetake ? 'slot-warn' : ''}}">
+    <view class="slot-head">
+      <text class="slot-index">1</text>
+      <view class="slot-copy">
+        <text class="slot-label">{{front.label}}</text>
+        <text class="slot-hint">{{front.hint}}</text>
+      </view>
+    </view>
+    <image wx:if="{{front.filled}}" class="preview" src="{{front.preview}}" mode="aspectFill" />
+    <view class="slot-actions">
+      <button class="btn btn-ghost" disabled="{{submitting}}" data-view="front" data-source="camera" bindtap="onPick">{{front.shootLabel}}</button>
+      <button class="btn btn-ghost" disabled="{{submitting}}" data-view="front" data-source="album" bindtap="onPick">{{front.albumLabel}}</button>
+    </view>
+    <button wx:if="{{front.filled}}" class="btn-text" disabled="{{submitting}}" data-view="front" bindtap="onRemove">{{front.removeLabel}}</button>
+  </view>
+
+  <view class="slot {{side.filled ? 'slot-filled' : ''}} {{side.needsRetake ? 'slot-warn' : ''}}">
+    <view class="slot-head">
+      <text class="slot-index">2</text>
+      <view class="slot-copy">
+        <text class="slot-label">{{side.label}}</text>
+        <text class="slot-hint">{{side.hint}}</text>
+      </view>
+    </view>
+    <image wx:if="{{side.filled}}" class="preview" src="{{side.preview}}" mode="aspectFill" />
+    <view class="slot-actions">
+      <button class="btn btn-ghost" disabled="{{submitting}}" data-view="side" data-source="camera" bindtap="onPick">{{side.shootLabel}}</button>
+      <button class="btn btn-ghost" disabled="{{submitting}}" data-view="side" data-source="album" bindtap="onPick">{{side.albumLabel}}</button>
+    </view>
+    <button wx:if="{{side.filled}}" class="btn-text" disabled="{{submitting}}" data-view="side" bindtap="onRemove">{{side.removeLabel}}</button>
+  </view>
+
+  <view wx:if="{{retake}}" class="retake">
+    <text class="retake-title">{{retake.title}}</text>
+    <text class="retake-lead">{{retake.lead}}</text>
+    <text class="retake-summary">{{retake.summary}}</text>
+    <view wx:for="{{retake.shots}}" wx:key="label" class="retake-shot">
+      <text class="retake-shot-label">{{item.label}}</text>
+      <text wx:for="{{item.messages}}" wx:for-item="line" wx:key="*this" class="retake-line">{{line}}</text>
+    </view>
+    <text class="checklist-title">{{retake.checklistTitle}}</text>
+    <view wx:for="{{retake.checklist}}" wx:key="*this" class="check-item">{{item}}</view>
+  </view>
+</view>
+
+<view class="submit-bar">
+  <text wx:if="{{notice}}" class="notice">{{notice}}</text>
+  <text class="need-both">{{needBoth}}</text>
+  <button class="btn btn-primary {{ready ? '' : 'btn-muted'}}" disabled="{{submitting}}" bindtap="onSubmit">{{submitLabel}}</button>
+</view>
