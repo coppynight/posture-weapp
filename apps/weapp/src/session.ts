@@ -10,6 +10,8 @@ export interface SessionState {
   submitting: boolean;
   /** Camera and album hide the mini program. That hide must not wipe the other photo. */
   pickerOpen: boolean;
+  /** Album permission and the settings sheet also hide the mini program. */
+  sheetOpen: boolean;
 }
 
 export interface ShotPaths {
@@ -34,6 +36,8 @@ export interface SessionStore {
   clearReport(): void;
   clearShots(): ShotPaths;
   markPicker(open: boolean): void;
+  /** Keep the in-memory report while an album or settings sheet is open. */
+  holdSession(open: boolean): void;
   /** Drop the in-memory session. Returns temp paths so the caller can delete those files. */
   clear(): ShotPaths;
   /**
@@ -52,6 +56,7 @@ export function emptySessionState(): SessionState {
     notice: null,
     submitting: false,
     pickerOpen: false,
+    sheetOpen: false,
   };
 }
 
@@ -91,6 +96,7 @@ export function createSessionStore(): SessionStore {
         notice: state.notice,
         submitting: state.submitting,
         pickerOpen: state.pickerOpen,
+        sheetOpen: state.sheetOpen,
       };
     },
     replaceShot(shot) {
@@ -142,11 +148,14 @@ export function createSessionStore(): SessionStore {
     markPicker(open) {
       state.pickerOpen = open;
     },
+    holdSession(open) {
+      state.sheetOpen = open;
+    },
     clear() {
       return wipe(null);
     },
     onAppHide() {
-      if (state.pickerOpen) {
+      if (state.pickerOpen || state.sheetOpen) {
         return { cleared: false, frontPath: null, sidePath: null };
       }
       const hadContent = state.front !== null || state.side !== null || state.report !== null || state.retakeGuidance !== null;

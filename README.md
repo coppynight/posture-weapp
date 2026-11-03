@@ -17,7 +17,7 @@ The quality gate and the missing-photo check both return before the swappable `M
 
 ## Mini program
 
-[`apps/weapp`](apps/weapp) is the guest client. It collects a front photo and a side photo, calls `POST /v1/analyze`, and shows either the training report or retake guidance. The report page leads with the non-medical disclaimer. Photos and the report stay in memory for the current visit; there is no history page and no login. Set the API origin in `apps/weapp/miniprogram/config.js`. The DevTools checklist is in the app README.
+[`apps/weapp`](apps/weapp) is the guest client. It collects a front photo and a side photo, calls `POST /v1/analyze`, and shows either the training report or retake guidance. The report page leads with the non-medical disclaimer. From that page, 保存分享卡 writes a 750×1334 summary PNG to the phone album (`wx.saveImageToPhotosAlbum`); the guest forwards that image in WeChat. The card shows the main problem, exercise tips, and the disclaimer, and it does not include the selfies. Photos, the report, and the temp PNG stay in the current visit; there is no history page and no login. Set the API origin in `apps/weapp/miniprogram/config.js`. The DevTools checklist is in the app README.
 
 ```bash
 npm install

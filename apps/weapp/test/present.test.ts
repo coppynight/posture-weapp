@@ -21,6 +21,9 @@ describe("report presentation", () => {
     assert.equal(view.exercises.length, 4);
     assert.match(view.exercises[0]?.addresses ?? "", /^针对：圆肩趋势$/);
     assert.match(view.sessionNote, /没有历史列表/);
+    assert.equal(view.shareLabel, "保存分享卡");
+    assert.match(view.shareHint, /保存到相册/);
+    assert.match(view.shareHint, /不含自拍照片/);
   });
 });
 

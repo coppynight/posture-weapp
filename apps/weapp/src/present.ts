@@ -47,6 +47,9 @@ export interface ReportView {
   exercisesTitle: string;
   sessionNote: string;
   againLabel: string;
+  shareLabel: string;
+  shareHint: string;
+  shareSavingLabel: string;
   issues: Array<{ title: string; detail: string; severityLabel: string }>;
   causes: Array<{ guess: string; related: string }>;
   exercises: Array<{ key: string; index: number; name: string; instruction: string; addresses: string }>;
@@ -83,6 +86,9 @@ export function reportView(report: Report): ReportView {
     exercisesTitle: COPY.exercisesTitle,
     sessionNote: COPY.sessionNote,
     againLabel: COPY.again,
+    shareLabel: COPY.shareSave,
+    shareHint: COPY.shareHint,
+    shareSavingLabel: COPY.shareSaving,
     issues: report.issues.map((issue) => ({
       title: issue.title,
       detail: issue.detail,

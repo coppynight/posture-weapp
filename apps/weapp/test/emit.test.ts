@@ -8,6 +8,7 @@ import type { LocalShot } from "../src/types.js";
 const require = createRequire(import.meta.url);
 const emitted = require("../miniprogram/lib/submit.js") as typeof import("../src/submit.js");
 const present = require("../miniprogram/lib/present.js") as typeof import("../src/present.js");
+const shareCard = require("../miniprogram/lib/share-card.js") as typeof import("../src/share-card.js");
 
 function shot(view: "front" | "side"): LocalShot {
   return { view, tempFilePath: `wxfile://${view}.jpg`, mediaType: "image/jpeg" };
@@ -36,5 +37,11 @@ describe("emitted mini program lib", () => {
     });
     assert.equal(view.disclaimerProminent, true);
     assert.equal(view.disclaimerHeading, "非医疗诊断");
+  });
+
+  it("emits the album save path", () => {
+    assert.equal(shareCard.SHARE_SAVE_API, "saveImageToPhotosAlbum");
+    assert.equal(typeof shareCard.layoutShareCard, "function");
+    assert.equal(typeof shareCard.saveShareCard, "function");
   });
 });
