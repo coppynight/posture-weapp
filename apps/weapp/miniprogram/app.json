@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/capture/capture",
+    "pages/report/report"
+  ],
+  "window": {
+    "navigationBarTitleText": "体态自拍",
+    "navigationBarBackgroundColor": "#f3efe6",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f3efe6",
+    "backgroundTextStyle": "dark"
+  },
+  "networkTimeout": {
+    "request": 60000
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.camera": {
+      "desc": "用于拍摄正面和侧面全身照"
+    }
+  }
+}

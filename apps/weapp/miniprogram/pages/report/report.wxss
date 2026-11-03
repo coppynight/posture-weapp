@@ -1,0 +1,126 @@
+.disclaimer-banner {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 32rpx 32rpx 36rpx;
+  background: #3f2a1d;
+  color: #fff8ee;
+}
+
+.disclaimer-kicker {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+}
+
+.disclaimer-body {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+.page {
+  padding: 36rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.section {
+  margin-top: 36rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.section-note {
+  display: block;
+  margin-top: 8rpx;
+  color: #6d675d;
+  font-size: 24rpx;
+}
+
+.card {
+  margin-top: 16rpx;
+  padding: 24rpx;
+  background: #fffdf8;
+  border-radius: 24rpx;
+}
+
+.card-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.card-title {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.tag {
+  margin-left: 16rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #efe6d6;
+  color: #5c4a32;
+  font-size: 22rpx;
+}
+
+.card-body,
+.related {
+  display: block;
+  margin-top: 12rpx;
+  color: #3f3428;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.related {
+  color: #0f6e56;
+  font-size: 24rpx;
+}
+
+.exercise-index {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 14rpx;
+  border-radius: 24rpx;
+  background: #0f6e56;
+  color: #f7fffb;
+  font-size: 26rpx;
+  font-weight: 700;
+  text-align: center;
+  line-height: 48rpx;
+}
+
+.session-note {
+  display: block;
+  margin-top: 36rpx;
+  color: #6d675d;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.btn-again {
+  width: 100%;
+  height: 96rpx;
+  margin-top: 24rpx;
+  border-radius: 16rpx;
+  background: #1c1915;
+  color: #fffdf8;
+  font-size: 32rpx;
+  font-weight: 700;
+}

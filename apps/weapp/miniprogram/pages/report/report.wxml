@@ -1,0 +1,43 @@
+<view wx:if="{{disclaimer}}" class="disclaimer-banner">
+  <text class="disclaimer-kicker">{{disclaimerHeading}}</text>
+  <text class="disclaimer-body">{{disclaimer}}</text>
+</view>
+
+<view class="page">
+  <text class="title">{{title}}</text>
+
+  <view class="section section-issues">
+    <text class="section-title">{{issuesTitle}}</text>
+    <view wx:for="{{issues}}" wx:key="title" class="card">
+      <view class="card-top">
+        <text class="card-title">{{item.title}}</text>
+        <text class="tag">{{item.severityLabel}}</text>
+      </view>
+      <text class="card-body">{{item.detail}}</text>
+    </view>
+  </view>
+
+  <view class="section section-causes">
+    <text class="section-title">{{causesTitle}}</text>
+    <text class="section-note">{{causesNote}}</text>
+    <view wx:for="{{causes}}" wx:for-index="causeIndex" wx:key="causeIndex" class="card">
+      <text wx:if="{{item.related}}" class="related">{{item.related}}</text>
+      <text class="card-body">{{item.guess}}</text>
+    </view>
+  </view>
+
+  <view class="section section-exercises">
+    <text class="section-title">{{exercisesTitle}}</text>
+    <view wx:for="{{exercises}}" wx:key="key" class="card exercise">
+      <view class="card-top">
+        <text class="exercise-index">{{item.index}}</text>
+        <text class="card-title">{{item.name}}</text>
+      </view>
+      <text class="card-body">{{item.instruction}}</text>
+      <text wx:if="{{item.addresses}}" class="related">{{item.addresses}}</text>
+    </view>
+  </view>
+
+  <text class="session-note">{{sessionNote}}</text>
+  <button class="btn-again" bindtap="onAgain">{{againLabel}}</button>
+</view>

@@ -1,0 +1,22 @@
+{
+  "description": "体态自拍分析",
+  "miniprogramRoot": "miniprogram/",
+  "projectname": "posture-weapp",
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "libVersion": "3.7.1",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false,
+    "newFeature": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {}
+}

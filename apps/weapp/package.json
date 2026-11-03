@@ -1,0 +1,21 @@
+{
+  "name": "posture-miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "WeChat mini program: guest front and side photos, then a session-only Simplified Chinese training report.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check:emit": "tsc -p tsconfig.json && git diff --exit-code -- miniprogram/lib && test -z \"$(git ls-files --others --exclude-standard -- miniprogram/lib)\"",
+    "test": "npm run build -w posture-core && npm run build -w posture-api && npm run check:emit && node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "smoke": "npm run build -w posture-core && npm run build -w posture-api && tsc -p tsconfig.json && node --import tsx scripts/smoke.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "posture-api": "0.1.0",
+    "posture-core": "0.1.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
