@@ -10,7 +10,7 @@ import {
   type RetakeGuidance,
 } from "posture-core";
 
-import { countingProvider, imageForm, jsonImage, loadImage, readJson, responseText, withServer } from "./helpers.js";
+import { countingProvider, imageForm, jsonImage, loadImage, readJson, responseText, toBlob, withServer } from "./helpers.js";
 
 const CJK = /[\u4e00-\u9fff]/;
 
@@ -148,6 +148,27 @@ describe("POST /v1/analyze", () => {
       assertReport(await readJson(response));
       assert.equal(seen.last()?.front.mediaType, "image/png");
       assert.equal(seen.last()?.side.mediaType, "image/png");
+    });
+  });
+
+  it("returns retake guidance for an unsupported type and does not invent a media type", async () => {
+    const side = loadImage("ok-side.png");
+    const seen = countingProvider(async () => {
+      throw new Error("hard analysis was called");
+    });
+    const junk = new Uint8Array(32);
+    junk.fill(7);
+    const form = new FormData();
+    form.append("front", new Blob([junk], { type: "image/gif" }), "front.gif");
+    form.append("side", toBlob(side), "side.png");
+
+    await withServer({ provider: seen.provider }, async (base) => {
+      const response = await fetch(`${base}/v1/analyze`, { method: "POST", body: form });
+      assert.equal(response.status, 422);
+      const guidance = assertRetake(await readJson(response), "poor_quality");
+      const frontShot = guidance.shots.find((shot) => shot.view === "front");
+      assert.ok(frontShot?.reasons.includes("unsupported_type"));
+      assert.equal(seen.calls(), 0);
     });
   });
 

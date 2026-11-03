@@ -1,5 +1,5 @@
 export { analyze, type AnalyzeOptions } from "./analyze.js";
-export { DEFAULT_SYSTEM_PROMPT, resolveSystemPrompt } from "./prompt.js";
+export { DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, resolveSystemPrompt } from "./prompt.js";
 export { BANNED_COURSE_MARKS } from "./banned-course-marks.js";
 export {
   ReportValidationError,

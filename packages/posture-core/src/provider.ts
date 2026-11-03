@@ -5,6 +5,8 @@ export interface AnalyzePostureRequest {
   front: PostureImage;
   side: PostureImage;
   systemPrompt: string;
+  /** Fixed user-turn text from the core. Send this with the photos. */
+  userPrompt: string;
 }
 
 /**

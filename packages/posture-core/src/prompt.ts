@@ -4,6 +4,7 @@ import { DEFAULT_SYSTEM_PROMPT } from "./default-system-prompt.js";
 import { SystemPromptError } from "./errors.js";
 
 export { DEFAULT_SYSTEM_PROMPT } from "./default-system-prompt.js";
+export { DEFAULT_USER_PROMPT } from "./default-user-prompt.js";
 
 const MAX_PROMPT_CHARS = 32_000;
 

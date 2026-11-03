@@ -62,7 +62,7 @@ The process listens on `127.0.0.1:8787` unless `HOST` and `PORT` are set.
 | `POSTURE_PROVIDER_TIMEOUT_MS` | Vendor call budget. Defaults to 30000. |
 | `HOST`, `PORT` | Bind address. Default `127.0.0.1:8787`. |
 
-Swap the vendor by passing another `MultimodalProvider` to `startServer`, or by changing `POSTURE_PROVIDER`. The core still owns the system prompt, the quality gate, and the disclaimer.
+Swap the vendor by passing another `MultimodalProvider` to `startServer`, or by changing `POSTURE_PROVIDER`. The core still owns the system prompt, the user prompt, the quality gate, and the disclaimer.
 
 ```bash
 curl -s -F front=@front.png -F side=@side.png http://127.0.0.1:8787/v1/analyze

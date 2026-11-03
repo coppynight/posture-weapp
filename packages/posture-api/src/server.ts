@@ -3,8 +3,14 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import type { MultimodalProvider } from "posture-core";
 
 import { ApiError } from "./errors.js";
-import { ANALYZE_PATH, handleAnalyzeRequest, normalizePath } from "./handler.js";
+import { ANALYZE_PATH, handleRequest, normalizePath } from "./handler.js";
 import { MAX_BODY_BYTES } from "./images.js";
+
+/** Time allowed for one HTTP request, including the provider call. */
+const REQUEST_TIMEOUT_MS = 120_000;
+
+/** Time allowed to receive request headers before the body. */
+const HEADERS_TIMEOUT_MS = 20_000;
 
 export interface ServerOptions {
   provider: MultimodalProvider;
@@ -15,7 +21,7 @@ export interface ServerOptions {
 }
 
 /**
- * HTTP adapter in front of `handleAnalyzeRequest`.
+ * HTTP adapter in front of `handleRequest`.
  * The raw body is a local buffer for that request and is not stored on the server.
  */
 export function createHttpServer(options: ServerOptions): Server {
@@ -32,8 +38,8 @@ export function createHttpServer(options: ServerOptions): Server {
       writeJson(res, 500, { error: "internal_error", message: "服务暂时不可用，请稍后重试。" });
     });
   });
-  server.requestTimeout = 120_000;
-  server.headersTimeout = 20_000;
+  server.requestTimeout = REQUEST_TIMEOUT_MS;
+  server.headersTimeout = HEADERS_TIMEOUT_MS;
   return server;
 }
 
@@ -70,7 +76,7 @@ async function dispatch(req: IncomingMessage, res: ServerResponse, options: Serv
   try {
     const body = method === "POST" && path === ANALYZE_PATH ? await readLimitedBody(req, maxBodyBytes) : drain(req);
     const request = toWebRequest(req, body);
-    const response = await handleAnalyzeRequest(request, {
+    const response = await handleRequest(request, {
       provider: options.provider,
       maxImageBytes: options.maxImageBytes,
     });

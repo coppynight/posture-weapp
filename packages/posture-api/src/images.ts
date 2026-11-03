@@ -3,6 +3,7 @@ import { Buffer } from "node:buffer";
 import type { MediaType, PostureImage } from "posture-core";
 
 import { ApiError } from "./errors.js";
+import { isRecord } from "./is-record.js";
 
 /** Largest accepted photo. Larger uploads are rejected and are not sent to the provider. */
 export const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
@@ -19,14 +20,26 @@ const DECLARED_MEDIA_TYPES: Record<string, MediaType> = {
   "image/webp": "image/webp",
 };
 
+/**
+ * One uploaded slot.
+ * `photo` is a real supported encoding. `unsupported` keeps the declared type
+ * as a plain string so the core quality gate can reject it. `missing` means
+ * the field was absent.
+ */
+export type UploadedShot =
+  | { kind: "missing" }
+  | { kind: "photo"; image: PostureImage }
+  | { kind: "unsupported"; data: Uint8Array; declaredType: string; sharpness?: number };
+
 export interface ParsedImagePair {
-  front: PostureImage | null;
-  side: PostureImage | null;
+  front: UploadedShot;
+  side: UploadedShot;
 }
 
 /**
  * Read the two posture photos from a multipart upload or a JSON body of base64 bytes.
- * A missing field becomes null so `analyze` can return retake guidance.
+ * A missing field is `kind: "missing"`. An unrecognized encoding stays `unsupported`
+ * with its declared type, so the core gate can reject it.
  * Bytes are copied into a fresh Uint8Array and are not written anywhere.
  */
 export async function readImagePair(request: Request, maxImageBytes: number): Promise<ParsedImagePair> {
@@ -72,40 +85,45 @@ async function readFormImage(
   value: string | File | null,
   sharpness: number | undefined,
   maxImageBytes: number,
-): Promise<PostureImage | null> {
-  if (value === null || typeof value === "string") return null;
+): Promise<UploadedShot> {
+  if (value === null || typeof value === "string") return { kind: "missing" };
   if (value.size > maxImageBytes) {
     throw new ApiError(413, "payload_too_large", "单张照片过大，请压缩后重新上传。");
   }
   const data = new Uint8Array(await value.arrayBuffer());
-  return toPostureImage(data, value.type, sharpness);
+  return toUploadedShot(data, value.type, sharpness);
 }
 
-function readJsonImage(value: unknown, maxImageBytes: number): PostureImage | null {
-  if (!isRecord(value)) return null;
+function readJsonImage(value: unknown, maxImageBytes: number): UploadedShot {
+  if (!isRecord(value)) return { kind: "missing" };
   const encoded = value.dataBase64;
-  if (typeof encoded !== "string" || encoded.trim() === "") return null;
+  if (typeof encoded !== "string" || encoded.trim() === "") return { kind: "missing" };
   const data = decodeBase64(encoded);
   if (data.byteLength > maxImageBytes) {
     throw new ApiError(413, "payload_too_large", "单张照片过大，请压缩后重新上传。");
   }
   const declared = typeof value.mediaType === "string" ? value.mediaType : "";
-  return toPostureImage(data, declared, readSharpness(value.sharpness));
+  return toUploadedShot(data, declared, readSharpness(value.sharpness));
 }
 
 /**
- * Build the image the core quality gate understands.
- * Unknown bytes keep a non-image media type so the gate returns retake guidance
- * instead of calling the provider.
+ * A supported encoding becomes a `PostureImage`.
+ * Anything else stays unsupported, with the caller's declared type unchanged.
  */
-function toPostureImage(data: Uint8Array, declaredType: string, sharpness: number | undefined): PostureImage {
+function toUploadedShot(data: Uint8Array, declaredType: string, sharpness: number | undefined): UploadedShot {
   const resolved = resolveMediaType(declaredType, data);
-  const image: PostureImage = {
+  if (resolved) {
+    const image: PostureImage = { data, mediaType: resolved };
+    if (sharpness !== undefined) image.sharpness = sharpness;
+    return { kind: "photo", image };
+  }
+  const shot: Extract<UploadedShot, { kind: "unsupported" }> = {
+    kind: "unsupported",
     data,
-    mediaType: (resolved ?? "application/octet-stream") as MediaType,
+    declaredType: mediaTypeOf(declaredType),
   };
-  if (sharpness !== undefined) image.sharpness = sharpness;
-  return image;
+  if (sharpness !== undefined) shot.sharpness = sharpness;
+  return shot;
 }
 
 function resolveMediaType(declared: string, data: Uint8Array): MediaType | null {
@@ -158,8 +176,4 @@ function ascii(data: Uint8Array, offset: number, length: number): string | null 
     text += String.fromCharCode(value);
   }
   return text;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

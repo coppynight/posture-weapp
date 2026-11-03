@@ -110,6 +110,11 @@ describe("zero persistence", () => {
       const source = fs.readFileSync(file, "utf8");
       assert.doesNotMatch(source, forbidden, file);
     }
+    const images = fs.readFileSync(join(srcDir, "images.ts"), "utf8");
+    assert.equal(images.includes("as MediaType"), false);
+    assert.equal(images.includes("application/octet-stream"), false);
+    const adapter = fs.readFileSync(join(srcDir, "openai-provider.ts"), "utf8");
+    assert.equal(adapter.includes("下面先是正面"), false);
   });
 });
 

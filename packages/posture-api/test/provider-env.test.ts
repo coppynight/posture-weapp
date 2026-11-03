@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { analyze, DEFAULT_SYSTEM_PROMPT, mockReportDraft, REPORT_DISCLAIMER } from "posture-core";
+import { analyze, DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, mockReportDraft, REPORT_DISCLAIMER } from "posture-core";
 
 import { createProviderFromEnv } from "../src/provider-env.js";
 import { imageForm, loadImage, readJson, withServer } from "./helpers.js";
@@ -30,8 +30,18 @@ describe("createProviderFromEnv", () => {
       },
     );
     assert.equal("calls" in provider, false);
-    const first = await provider.analyzePosture({ front, side, systemPrompt: "ignored-by-mock" });
-    const second = await provider.analyzePosture({ front, side, systemPrompt: "ignored-by-mock" });
+    const first = await provider.analyzePosture({
+      front,
+      side,
+      systemPrompt: "ignored-by-mock",
+      userPrompt: "ignored-by-mock",
+    });
+    const second = await provider.analyzePosture({
+      front,
+      side,
+      systemPrompt: "ignored-by-mock",
+      userPrompt: "ignored-by-mock",
+    });
     assert.equal(fetched, 0);
     assert.equal("calls" in provider, false);
     assert.notEqual(first, second);
@@ -140,6 +150,13 @@ describe("createProviderFromEnv", () => {
     };
     const system = sent.messages?.find((message) => message.role === "system");
     assert.equal(system?.content, DEFAULT_SYSTEM_PROMPT);
+    const user = sent.messages?.find((message) => message.role === "user");
+    const userContent = user?.content;
+    assert.ok(Array.isArray(userContent));
+    const textPart = userContent.find(
+      (part) => typeof part === "object" && part !== null && "type" in part && part.type === "text",
+    ) as { text?: string } | undefined;
+    assert.equal(textPart?.text, DEFAULT_USER_PROMPT);
     assert.equal(seen[1]?.body.includes("data:image/png;base64,"), true);
     assert.equal(seen[1]?.body.includes(secret), false);
   });

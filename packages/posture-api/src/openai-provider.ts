@@ -2,6 +2,8 @@ import { Buffer } from "node:buffer";
 
 import type { AnalyzePostureRequest, MultimodalProvider, PostureImage } from "posture-core";
 
+import { isRecord } from "./is-record.js";
+
 export interface OpenAiCompatibleConfig {
   apiKey: string;
   baseUrl: string;
@@ -52,7 +54,7 @@ export class OpenAiCompatibleProvider implements MultimodalProvider {
           content: [
             {
               type: "text",
-              text: "下面先是正面全身照，然后是侧面全身照。请只输出系统提示要求的 JSON 对象。",
+              text: input.userPrompt,
             },
             { type: "image_url", image_url: { url: dataUrl(input.front) } },
             { type: "image_url", image_url: { url: dataUrl(input.side) } },
@@ -122,8 +124,4 @@ function normalizeBaseUrl(value: string): string {
     throw new Error("POSTURE_API_BASE_URL must be an http(s) URL");
   }
   return url.toString().replace(/\/$/, "");
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
