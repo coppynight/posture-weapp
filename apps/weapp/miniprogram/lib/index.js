@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decideSubmit = exports.emptySessionState = exports.createSessionStore = exports.severityLabel = exports.REPORT_SECTION_ORDER = exports.reportView = exports.captureView = exports.mediaTypeFromPath = exports.submitAnalysis = exports.removeImage = exports.pickImage = exports.endSession = exports.COPY = exports.interpretAnalyzeResponse = exports.createFetchTransport = exports.analyzeUrl = exports.analyzePhotos = void 0;
+exports.decideSubmit = exports.saveShareCard = exports.paintShareCard = exports.layoutShareCard = exports.estimateTextWidth = exports.SHARE_SAVE_API = exports.SHARE_CARD_WIDTH = exports.SHARE_CARD_HEIGHT = exports.emptySessionState = exports.createSessionStore = exports.severityLabel = exports.REPORT_SECTION_ORDER = exports.reportView = exports.captureView = exports.mediaTypeFromPath = exports.submitAnalysis = exports.removeImage = exports.pickImage = exports.endSession = exports.COPY = exports.interpretAnalyzeResponse = exports.createFetchTransport = exports.analyzeUrl = exports.analyzePhotos = void 0;
 var analyze_js_1 = require("./analyze.js");
 Object.defineProperty(exports, "analyzePhotos", { enumerable: true, get: function () { return analyze_js_1.analyzePhotos; } });
 Object.defineProperty(exports, "analyzeUrl", { enumerable: true, get: function () { return analyze_js_1.analyzeUrl; } });
@@ -23,5 +23,13 @@ Object.defineProperty(exports, "severityLabel", { enumerable: true, get: functio
 var session_js_1 = require("./session.js");
 Object.defineProperty(exports, "createSessionStore", { enumerable: true, get: function () { return session_js_1.createSessionStore; } });
 Object.defineProperty(exports, "emptySessionState", { enumerable: true, get: function () { return session_js_1.emptySessionState; } });
+var share_card_js_1 = require("./share-card.js");
+Object.defineProperty(exports, "SHARE_CARD_HEIGHT", { enumerable: true, get: function () { return share_card_js_1.SHARE_CARD_HEIGHT; } });
+Object.defineProperty(exports, "SHARE_CARD_WIDTH", { enumerable: true, get: function () { return share_card_js_1.SHARE_CARD_WIDTH; } });
+Object.defineProperty(exports, "SHARE_SAVE_API", { enumerable: true, get: function () { return share_card_js_1.SHARE_SAVE_API; } });
+Object.defineProperty(exports, "estimateTextWidth", { enumerable: true, get: function () { return share_card_js_1.estimateTextWidth; } });
+Object.defineProperty(exports, "layoutShareCard", { enumerable: true, get: function () { return share_card_js_1.layoutShareCard; } });
+Object.defineProperty(exports, "paintShareCard", { enumerable: true, get: function () { return share_card_js_1.paintShareCard; } });
+Object.defineProperty(exports, "saveShareCard", { enumerable: true, get: function () { return share_card_js_1.saveShareCard; } });
 var submit_js_1 = require("./submit.js");
 Object.defineProperty(exports, "decideSubmit", { enumerable: true, get: function () { return submit_js_1.decideSubmit; } });

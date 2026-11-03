@@ -39,5 +39,9 @@
   </view>
 
   <text class="session-note">{{sessionNote}}</text>
+  <button class="btn-share" bindtap="onSaveShare" disabled="{{sharing}}">{{sharing ? shareSavingLabel : shareLabel}}</button>
+  <text class="share-hint">{{shareHint}}</text>
   <button class="btn-again" bindtap="onAgain">{{againLabel}}</button>
 </view>
+
+<canvas type="2d" id="share-card" class="share-canvas"></canvas>

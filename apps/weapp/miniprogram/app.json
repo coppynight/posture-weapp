@@ -18,6 +18,9 @@
   "permission": {
     "scope.camera": {
       "desc": "用于拍摄正面和侧面全身照"
+    },
+    "scope.writePhotosAlbum": {
+      "desc": "用于把本次分享卡保存到相册"
     }
   }
 }

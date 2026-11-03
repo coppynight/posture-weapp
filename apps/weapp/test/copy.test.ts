@@ -25,7 +25,10 @@ describe("guest copy", () => {
     assert.equal(COPY.disclaimerHeading, "非医疗诊断");
     assert.match(COPY.captureLead, /无需登录/);
     assert.match(COPY.sessionNote, /没有历史列表/);
+    assert.equal(COPY.shareSave, "保存分享卡");
+    assert.match(COPY.shareHint, /不含自拍照片/);
+    assert.match(COPY.shareFooter, /不含自拍/);
+    assert.equal(COPY.shareSaved, "已保存到相册");
     assert.equal(JSON.stringify(COPY).includes("请登录"), false);
-    assert.equal(JSON.stringify(COPY).includes("分享"), false);
   });
 });

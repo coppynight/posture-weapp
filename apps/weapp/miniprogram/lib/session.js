@@ -12,6 +12,7 @@ function emptySessionState() {
         notice: null,
         submitting: false,
         pickerOpen: false,
+        sheetOpen: false,
     };
 }
 function createSessionStore() {
@@ -46,6 +47,7 @@ function createSessionStore() {
                 notice: state.notice,
                 submitting: state.submitting,
                 pickerOpen: state.pickerOpen,
+                sheetOpen: state.sheetOpen,
             };
         },
         replaceShot(shot) {
@@ -102,11 +104,14 @@ function createSessionStore() {
         markPicker(open) {
             state.pickerOpen = open;
         },
+        holdSession(open) {
+            state.sheetOpen = open;
+        },
         clear() {
             return wipe(null);
         },
         onAppHide() {
-            if (state.pickerOpen) {
+            if (state.pickerOpen || state.sheetOpen) {
                 return { cleared: false, frontPath: null, sidePath: null };
             }
             const hadContent = state.front !== null || state.side !== null || state.report !== null || state.retakeGuidance !== null;

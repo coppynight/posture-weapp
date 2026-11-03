@@ -6,6 +6,7 @@ import { listenUrl, startServer } from "posture-api";
 import { analyzePhotos, createFetchTransport } from "../src/analyze.js";
 import { submitAnalysis } from "../src/flow.js";
 import { reportView } from "../src/present.js";
+import { SHARE_CARD_HEIGHT, SHARE_CARD_WIDTH, SHARE_SAVE_API, layoutShareCard } from "../src/share-card.js";
 import { createSessionStore } from "../src/session.js";
 import type { Transport } from "../src/types.js";
 import { loadPhoto } from "../test/fixtures.js";
@@ -48,6 +49,18 @@ try {
   assert.equal(view.disclaimer, REPORT_DISCLAIMER);
   assert.equal(view.disclaimerProminent, true);
   assert.ok(view.exercises.length >= 3 && view.exercises.length <= 5);
+  const card = layoutShareCard(reportOutcome.report);
+  assert.ok(card);
+  if (!card) throw new Error("expected a share card");
+  assert.equal(card.width, SHARE_CARD_WIDTH);
+  assert.equal(card.height, SHARE_CARD_HEIGHT);
+  const cardText = card.lines.map((line) => line.text).join("");
+  assert.equal(cardText.includes("非医疗诊断"), true);
+  assert.equal(cardText.includes(reportOutcome.report.disclaimer), true);
+  for (const exercise of reportOutcome.report.exerciseSuggestions) {
+    assert.equal(cardText.includes(exercise.name), true);
+  }
+  assert.equal(SHARE_SAVE_API, "saveImageToPhotosAlbum");
 
   const retakeOutcome = await analyzePhotos(
     createFetchTransport(fetch),
@@ -63,6 +76,7 @@ try {
   console.log("weapp smoke ok");
   console.log(`report issue=${view.issues[0]?.title ?? ""} exercises=${view.exercises.length}`);
   console.log(`disclaimer=${view.disclaimerHeading}`);
+  console.log(`share=${SHARE_SAVE_API} ${card.width}x${card.height}`);
   console.log(`retake=${retakeOutcome.retakeGuidance.code} ${retakeOutcome.retakeGuidance.summary}`);
   console.log(`single photo blocked: ${store.get().notice ?? ""}`);
 } finally {

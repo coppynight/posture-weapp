@@ -35,6 +35,9 @@ function reportView(report) {
         exercisesTitle: copy_js_1.COPY.exercisesTitle,
         sessionNote: copy_js_1.COPY.sessionNote,
         againLabel: copy_js_1.COPY.again,
+        shareLabel: copy_js_1.COPY.shareSave,
+        shareHint: copy_js_1.COPY.shareHint,
+        shareSavingLabel: copy_js_1.COPY.shareSaving,
         issues: report.issues.map((issue) => ({
             title: issue.title,
             detail: issue.detail,

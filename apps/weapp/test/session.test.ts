@@ -48,6 +48,19 @@ describe("session store", () => {
     assert.equal(JSON.stringify(state).includes("头前引"), false);
   });
 
+  it("keeps the report while the album sheet is open", () => {
+    const store = createSessionStore();
+    store.setReport(sampleReport("本结果不是医疗诊断。"));
+    store.holdSession(true);
+    const hidden = store.onAppHide();
+    assert.equal(hidden.cleared, false);
+    assert.equal(store.get().report?.issues[0]?.title, "头前引");
+    store.holdSession(false);
+    const left = store.onAppHide();
+    assert.equal(left.cleared, true);
+    assert.equal(store.get().report, null);
+  });
+
   it("does not wipe photos while the camera or album is open", () => {
     const store = createSessionStore();
     store.replaceShot(shot("front"));

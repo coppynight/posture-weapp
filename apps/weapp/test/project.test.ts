@@ -62,7 +62,34 @@ describe("mini program shell", () => {
     }
   });
 
-  it("does not archive photos or reports, and does not add login or share", () => {
+  it("saves a share card from the report page without archiving the poster", () => {
+    const wxml = read("miniprogram/pages/report/report.wxml");
+    const page = read("miniprogram/pages/report/report.js");
+    const service = read("miniprogram/services/share-card.js");
+    const source = read("src/share-card.ts");
+    assert.match(wxml, /bindtap="onSaveShare"/);
+    assert.match(wxml, /class="share-hint"/);
+    assert.match(wxml, /type="2d"/);
+    assert.match(wxml, /id="share-card"/);
+    assert.ok(wxml.indexOf("disclaimer-banner") < wxml.indexOf("onSaveShare"));
+    assert.match(page, /services\/share-card\.js/);
+    assert.match(page, /holdSession/);
+    assert.doesNotMatch(page, /wx\.saveImageToPhotosAlbum|wx\.canvasToTempFilePath|wx\.createOffscreenCanvas|wx\.openSetting|wx\.showModal/);
+    assert.match(service, /saveImageToPhotosAlbum/);
+    assert.match(service, /canvasToTempFilePath/);
+    assert.match(service, /createOffscreenCanvas/);
+    assert.match(source, /saveImageToPhotosAlbum/);
+    assert.doesNotMatch(source, /schemaVersion|causeGuesses|drawImage|tempFilePath|dataBase64/);
+    assert.doesNotMatch(page, /onShareAppMessage|setStorage|saveFile|writeFile/);
+    const app = JSON.parse(read("miniprogram/app.json")) as {
+      permission: { "scope.writePhotosAlbum": { desc: string } };
+    };
+    const album = app.permission["scope.writePhotosAlbum"].desc;
+    assert.equal(/[A-Za-z]/.test(album), false);
+    assert.match(album, /相册/);
+  });
+
+  it("does not archive photos or reports, and does not add login", () => {
     const files = [
       ...walk(join(root, "src")).map((file) => relative(root, file)),
       ...walk(join(root, "miniprogram")).map((file) => relative(root, file)),
