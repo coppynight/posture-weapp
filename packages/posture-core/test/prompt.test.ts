@@ -4,7 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { BANNED_COURSE_MARKS, DEFAULT_SYSTEM_PROMPT, resolveSystemPrompt, SystemPromptError } from "../src/index.js";
+import {
+  BANNED_COURSE_MARKS,
+  DEFAULT_SYSTEM_PROMPT,
+  DEFAULT_USER_PROMPT,
+  resolveSystemPrompt,
+  SystemPromptError,
+} from "../src/index.js";
 
 describe("system prompt", () => {
   it("defaults to the fixed Simplified Chinese training prompt", () => {
@@ -18,6 +24,13 @@ describe("system prompt", () => {
     for (const mark of BANNED_COURSE_MARKS) {
       assert.equal(DEFAULT_SYSTEM_PROMPT.includes(mark), true, mark);
     }
+  });
+
+  it("keeps one fixed user prompt for the photo turn", () => {
+    assert.match(DEFAULT_USER_PROMPT, /正面/);
+    assert.match(DEFAULT_USER_PROMPT, /侧面/);
+    assert.match(DEFAULT_USER_PROMPT, /JSON/);
+    assert.equal(DEFAULT_USER_PROMPT.includes(DEFAULT_SYSTEM_PROMPT), false);
   });
 
   it("reads a replacement prompt from a path", () => {

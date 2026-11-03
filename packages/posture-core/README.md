@@ -17,6 +17,6 @@ if (result.status === "report") {
 }
 ```
 
-`analyze` calls `provider.analyzePosture` only after both images exist and pass the local quality gate (readable JPEG, PNG, or WebP header, each edge at least 480px, optional `sharpness` of at least 0.4). The provider must return parsed JSON, or a JSON string, matching the report schema. The library overwrites `disclaimer` with `REPORT_DISCLAIMER`.
+`analyze` calls `provider.analyzePosture` only after both images exist and pass the local quality gate (readable JPEG, PNG, or WebP header, each edge at least 480px, optional `sharpness` of at least 0.4). The request carries the resolved system prompt and the fixed `DEFAULT_USER_PROMPT`. The provider must return parsed JSON, or a JSON string, matching the report schema. The library overwrites `disclaimer` with `REPORT_DISCLAIMER`.
 
 Replace `MockMultimodalProvider` with any object that implements `MultimodalProvider`.

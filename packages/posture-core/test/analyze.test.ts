@@ -7,6 +7,7 @@ import { describe, it } from "node:test";
 import {
   analyze,
   DEFAULT_SYSTEM_PROMPT,
+  DEFAULT_USER_PROMPT,
   isReportResult,
   isRetakeResult,
   mockReportDraft,
@@ -47,6 +48,7 @@ describe("analyze", () => {
 
     assert.equal(provider.calls.length, 1);
     assert.equal(provider.calls[0]?.systemPrompt, DEFAULT_SYSTEM_PROMPT);
+    assert.equal(provider.calls[0]?.userPrompt, DEFAULT_USER_PROMPT);
     assert.equal(provider.calls[0]?.front.data, pair.front.data);
     assert.equal(provider.calls[0]?.front.mediaType, pair.front.mediaType);
     assert.equal(provider.calls[0]?.side.data, pair.side.data);
@@ -69,6 +71,7 @@ describe("analyze", () => {
       async analyzePosture(input) {
         calls += 1;
         assert.equal(input.systemPrompt, DEFAULT_SYSTEM_PROMPT);
+        assert.equal(input.userPrompt, DEFAULT_USER_PROMPT);
         return {
           issues: [
             {
@@ -261,6 +264,7 @@ describe("analyze", () => {
     assert.equal(provider.calls.length, 1);
     assert.equal(provider.calls[0]?.systemPrompt, "自定义系统提示词，仍要求简体中文训练建议。");
     assert.notEqual(provider.calls[0]?.systemPrompt, DEFAULT_SYSTEM_PROMPT);
+    assert.equal(provider.calls[0]?.userPrompt, DEFAULT_USER_PROMPT);
     assert.equal(result.status, "report");
     if (result.status !== "report") return;
     assert.equal(result.report.disclaimer, REPORT_DISCLAIMER);

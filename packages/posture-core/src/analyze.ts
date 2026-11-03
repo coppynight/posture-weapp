@@ -1,7 +1,7 @@
 import { ReportValidationError, RetakeGuidanceValidationError } from "./errors.js";
 import { gateImagePair } from "./quality.js";
 import type { MultimodalProvider } from "./provider.js";
-import { resolveSystemPrompt } from "./prompt.js";
+import { DEFAULT_USER_PROMPT, resolveSystemPrompt } from "./prompt.js";
 import { validateReport, validateRetakeGuidance } from "./schema.js";
 import type { AnalyzeResult, PostureImage } from "./types.js";
 
@@ -43,6 +43,7 @@ export async function analyze(
     front: gated.front,
     side: gated.side,
     systemPrompt,
+    userPrompt: DEFAULT_USER_PROMPT,
   });
   const validated = validateReport(raw, { stampDisclaimer: true });
   if (!validated.ok) {

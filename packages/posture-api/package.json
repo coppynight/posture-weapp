@@ -1,0 +1,36 @@
+{
+  "name": "posture-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Stateless HTTP API: front and side posture photos in, a Chinese training report or retake guidance out.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prebuild": "npm run build -w posture-core",
+    "test": "npm run build -w posture-core && node --import tsx --test test/*.test.ts",
+    "typecheck": "npm run build -w posture-core && tsc -p tsconfig.test.json --noEmit",
+    "start": "npm run build -w posture-core && node --import tsx src/main.ts",
+    "smoke": "npm run build -w posture-core && node --import tsx scripts/smoke.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "posture-core": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
