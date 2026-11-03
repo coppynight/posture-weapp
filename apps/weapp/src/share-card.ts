@@ -185,23 +185,19 @@ export async function saveShareCard(
   }
 }
 
+/** Display gate only. Count, version, and unused fields stay on the T1 report contract. */
 function isPaintable(report: Report): boolean {
-  if (!report || report.schemaVersion !== 1) return false;
-  if (typeof report.disclaimer !== "string" || report.disclaimer.trim() === "") return false;
-  if (!Array.isArray(report.issues) || report.issues.length === 0) return false;
-  if (!Array.isArray(report.causeGuesses) || report.causeGuesses.length === 0) return false;
+  if (!report || typeof report.disclaimer !== "string" || report.disclaimer.trim() === "") return false;
+  if (!leadIssue(report.issues)) return false;
   if (!Array.isArray(report.exerciseSuggestions)) return false;
-  const count = report.exerciseSuggestions.length;
-  if (count < 3 || count > 5) return false;
-  for (const issue of report.issues) {
-    if (!issue || typeof issue.title !== "string" || issue.title.trim() === "") return false;
-    if (typeof issue.detail !== "string" || issue.detail.trim() === "") return false;
-  }
-  for (const exercise of report.exerciseSuggestions) {
-    if (!exercise || typeof exercise.name !== "string" || exercise.name.trim() === "") return false;
-    if (typeof exercise.instruction !== "string" || exercise.instruction.trim() === "") return false;
-  }
-  return true;
+  return report.exerciseSuggestions.every((exercise) => {
+    if (!exercise) return false;
+    return drawnText(exercise.name) !== "" && drawnText(exercise.instruction) !== "";
+  });
+}
+
+function drawnText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function compose(report: Report, measure: TextMeasure, attempt: Attempt): ShareCardLayout | null {
@@ -275,15 +271,18 @@ function paintLead(
   let inner = cursor + 18;
   const textX = PAD + 18;
   const textWidth = CONTENT_WIDTH - 36;
-  inner = placeText(lines, "leadTitle", lead.title.trim(), textX, inner, 34, "bold", INK, textWidth, null, measure);
+  inner = placeText(lines, "leadTitle", drawnText(lead.title), textX, inner, 34, "bold", INK, textWidth, null, measure);
   const severity = severityLabel(lead.severity);
   if (severity) {
     inner += 4;
     inner = placeText(lines, "severity", severity, textX, inner, 24, "bold", ACCENT, textWidth, 1, measure);
   }
-  inner += 6;
-  inner = placeText(lines, "leadDetail", lead.detail.trim(), textX, inner, 26, "normal", MUTED, textWidth, attempt.detailLines, measure);
-  const others = issues.filter((issue) => issue !== lead).map((issue) => issue.title.trim());
+  const detail = drawnText(lead.detail);
+  if (detail) {
+    inner += 6;
+    inner = placeText(lines, "leadDetail", detail, textX, inner, 26, "normal", MUTED, textWidth, attempt.detailLines, measure);
+  }
+  const others = issues.filter((issue) => issue !== lead).map((issue) => drawnText(issue.title)).filter((title) => title !== "");
   if (attempt.showOthers && others.length > 0) {
     inner += 8;
     inner = placeText(lines, "otherIssues", `${COPY.shareAlso}：${others.join("、")}`, textX, inner, 24, "normal", INK, textWidth, 2, measure);
@@ -319,13 +318,13 @@ function paintExercise(
   });
   const nameX = innerLeft + badgeSize + 12;
   const nameWidth = PAD + CONTENT_WIDTH - 16 - nameX;
-  let inner = placeText(lines, "exerciseName", exercise.name.trim(), nameX, badgeY, 28, "bold", INK, nameWidth, null, measure);
+  let inner = placeText(lines, "exerciseName", drawnText(exercise.name), nameX, badgeY, 28, "bold", INK, nameWidth, null, measure);
   if (tipLines > 0) {
     inner += 4;
     inner = placeText(
       lines,
       "exerciseTip",
-      exercise.instruction.trim(),
+      drawnText(exercise.instruction),
       nameX,
       inner,
       24,
@@ -383,8 +382,10 @@ function fits(layout: ShareCardLayout, measure: TextMeasure): boolean {
 }
 
 function leadIssue(issues: readonly PostureIssue[]): PostureIssue | null {
+  if (!Array.isArray(issues)) return null;
   let best: PostureIssue | null = null;
   for (const issue of issues) {
+    if (drawnText(issue?.title) === "") continue;
     if (!best || (SEVERITY_RANK[issue.severity] ?? 0) > (SEVERITY_RANK[best.severity] ?? 0)) best = issue;
   }
   return best;

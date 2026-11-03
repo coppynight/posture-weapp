@@ -295,7 +295,7 @@ describe("share card layout", () => {
     assert.equal(readPngSize(image.png).height, HEIGHT);
   });
 
-  it("refuses a report that cannot carry the disclaimer, a problem, and 3 to 5 exercises", () => {
+  it("paints when the disclaimer, a lead issue, and exercise lines are drawable", () => {
     const report = validReport();
     assert.equal(layoutShareCard({ ...report, disclaimer: "   " }), null);
     assert.equal(layoutShareCard({ ...report, issues: [] }), null);
@@ -307,21 +307,37 @@ describe("share card layout", () => {
       null,
     );
     assert.equal(
-      layoutShareCard({ ...report, exerciseSuggestions: report.exerciseSuggestions.slice(0, 2) }),
-      null,
-    );
-    assert.equal(
       layoutShareCard({
         ...report,
-        exerciseSuggestions: [
-          ...report.exerciseSuggestions,
-          { name: "猫牛", instruction: "双手撑地，脊柱缓慢屈伸。" },
-          { name: "死虫", instruction: "仰卧对侧手脚缓慢伸直。" },
-        ],
+        exerciseSuggestions: [{ name: "  ", instruction: "背靠墙抬臂。", addresses: "" }, ...report.exerciseSuggestions.slice(1)],
       }),
       null,
     );
-    assert.equal(layoutShareCard({ ...report, schemaVersion: 2 as 1 }), null);
+    const two = layoutShareCard({ ...report, exerciseSuggestions: report.exerciseSuggestions.slice(0, 2) });
+    assert.ok(two);
+    assert.equal(textOf(two!, "exerciseName").includes("靠墙天使"), true);
+    assert.equal(textOf(two!, "exerciseName").includes("弹力带面拉"), true);
+    const six = layoutShareCard({
+      ...report,
+      exerciseSuggestions: [
+        ...report.exerciseSuggestions,
+        { name: "猫牛", instruction: "双手撑地，脊柱缓慢屈伸。" },
+        { name: "死虫", instruction: "仰卧对侧手脚缓慢伸直。" },
+      ],
+    });
+    assert.ok(six);
+    assert.equal(textOf(six!, "exerciseName").includes("猫牛"), true);
+    assert.equal(textOf(six!, "exerciseName").includes("死虫"), true);
+    const untitledDetail = layoutShareCard({
+      ...report,
+      schemaVersion: 2 as 1,
+      causeGuesses: [],
+      issues: [{ title: "头前引", detail: "  ", severity: "moderate" }],
+    });
+    assert.ok(untitledDetail);
+    assert.equal(textOf(untitledDetail!, "leadTitle"), "头前引");
+    assert.equal(textOf(untitledDetail!, "leadDetail"), "");
+    assert.equal(textOf(untitledDetail!, "disclaimer"), report.disclaimer);
   });
 });
 
