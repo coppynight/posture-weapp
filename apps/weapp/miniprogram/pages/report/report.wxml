@@ -30,7 +30,7 @@
     <text class="section-title">{{exercisesTitle}}</text>
     <view wx:for="{{exercises}}" wx:key="key" class="card exercise">
       <view class="card-top">
-        <text class="exercise-index">{{item.index}}</text>
+        <text class="ordinal">{{item.index}}</text>
         <text class="card-title">{{item.name}}</text>
       </view>
       <text class="card-body">{{item.instruction}}</text>
@@ -39,9 +39,9 @@
   </view>
 
   <text class="session-note">{{sessionNote}}</text>
-  <button class="btn-share" bindtap="onSaveShare" disabled="{{sharing}}">{{sharing ? shareSavingLabel : shareLabel}}</button>
+  <button class="btn-primary share-save" bindtap="onSaveShare" disabled="{{sharing}}">{{sharing ? shareSavingLabel : shareLabel}}</button>
   <text class="share-hint">{{shareHint}}</text>
-  <button class="btn-again" bindtap="onAgain">{{againLabel}}</button>
+  <button class="btn-outline share-again" bindtap="onAgain">{{againLabel}}</button>
 </view>
 
 <canvas type="2d" id="share-card" class="share-canvas"></canvas>

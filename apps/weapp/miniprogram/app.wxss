@@ -1,7 +1,31 @@
 page {
-  background: #f3efe6;
-  color: #1c1915;
-  font-size: 30rpx;
+  --color-bg: #f5f7f7;
+  --color-surface: #ffffff;
+  --color-ink: #1c2422;
+  --color-ink-secondary: #3e4a47;
+  --color-muted: #55625e;
+  --color-line: #dce3e1;
+  --color-primary: #0f766e;
+  --color-on-primary: #f4fffb;
+  --color-primary-soft: #d4efe8;
+  --color-primary-ink: #0c5c52;
+  --radius-card: 40rpx;
+  --radius-control: 32rpx;
+  --radius-media: 24rpx;
+  --radius-pill: 999rpx;
+  --size-ordinal: 48rpx;
+  --type-title: 56rpx;
+  --type-display: 42rpx;
+  --type-section: 34rpx;
+  --type-card-title: 32rpx;
+  --type-body: 30rpx;
+  --type-reading: 28rpx;
+  --type-subhead: 26rpx;
+  --type-caption: 24rpx;
+  --type-index: 22rpx;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-size: var(--type-body);
   line-height: 1.5;
   font-family: "PingFang SC", "Noto Sans SC", sans-serif;
 }
@@ -18,4 +42,47 @@ button {
 
 button::after {
   border: none;
+}
+
+.ordinal {
+  width: var(--size-ordinal);
+  height: var(--size-ordinal);
+  margin-right: 16rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  text-align: center;
+  line-height: var(--size-ordinal);
+}
+
+.btn-primary,
+.btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 96rpx;
+  border-radius: var(--radius-control);
+  font-size: var(--type-card-title);
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.btn-outline {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: 2rpx solid var(--color-line);
+}
+
+.btn-muted,
+button[disabled].btn-primary {
+  background: var(--color-line);
+  color: var(--color-muted);
 }

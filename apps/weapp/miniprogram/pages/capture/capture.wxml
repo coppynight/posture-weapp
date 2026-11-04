@@ -7,7 +7,7 @@
 
   <view class="slot {{front.filled ? 'slot-filled' : ''}} {{front.needsRetake ? 'slot-warn' : ''}}">
     <view class="slot-head">
-      <text class="slot-index">1</text>
+      <text class="ordinal">1</text>
       <view class="slot-copy">
         <text class="slot-label">{{front.label}}</text>
         <text class="slot-hint">{{front.hint}}</text>
@@ -23,7 +23,7 @@
 
   <view class="slot {{side.filled ? 'slot-filled' : ''}} {{side.needsRetake ? 'slot-warn' : ''}}">
     <view class="slot-head">
-      <text class="slot-index">2</text>
+      <text class="ordinal">2</text>
       <view class="slot-copy">
         <text class="slot-label">{{side.label}}</text>
         <text class="slot-hint">{{side.hint}}</text>
@@ -53,5 +53,5 @@
 <view class="submit-bar">
   <text wx:if="{{notice}}" class="notice">{{notice}}</text>
   <text class="need-both">{{needBoth}}</text>
-  <button class="btn btn-primary {{ready ? '' : 'btn-muted'}}" disabled="{{submitting}}" bindtap="onSubmit">{{submitLabel}}</button>
+  <button class="btn-primary {{ready ? '' : 'btn-muted'}}" disabled="{{submitting}}" bindtap="onSubmit">{{submitLabel}}</button>
 </view>
