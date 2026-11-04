@@ -19,7 +19,7 @@ const BAND_HEADING = theme.color.primaryInk;
 const BAND_INK = theme.color.ink;
 const PANEL = theme.color.surface;
 const INK = theme.color.ink;
-const MUTED = theme.color.inkSecondary;
+const SECONDARY = theme.color.inkSecondary;
 const ACCENT = theme.color.primaryInk;
 const BADGE = theme.color.primary;
 const BADGE_INK = theme.color.onPrimary;
@@ -247,7 +247,7 @@ function compose(report: Report, measure: TextMeasure, attempt: Attempt): ShareC
     cursor = paintExercise(blocks, lines, exercise, index + 1, attempt.tipLines, cursor, measure);
   });
   cursor += 8;
-  placeText(lines, "footer", COPY.shareFooter, PAD, cursor, theme.type.caption, "normal", MUTED, CONTENT_WIDTH, null, measure);
+  placeText(lines, "footer", COPY.shareFooter, PAD, cursor, theme.type.caption, "normal", SECONDARY, CONTENT_WIDTH, null, measure);
   return { width: SHARE_CARD_WIDTH, height: SHARE_CARD_HEIGHT, blocks, lines };
 }
 
@@ -304,7 +304,7 @@ function paintLead(
   const detail = drawnText(lead.detail);
   if (detail) {
     inner += 6;
-    inner = placeText(lines, "leadDetail", detail, textX, inner, theme.type.subhead, "normal", MUTED, textWidth, attempt.detailLines, measure);
+    inner = placeText(lines, "leadDetail", detail, textX, inner, theme.type.subhead, "normal", SECONDARY, textWidth, attempt.detailLines, measure);
   }
   const others = issues.filter((issue) => issue !== lead).map((issue) => drawnText(issue.title)).filter((title) => title !== "");
   if (attempt.showOthers && others.length > 0) {
@@ -361,7 +361,7 @@ function paintExercise(
       inner,
       theme.type.caption,
       "normal",
-      MUTED,
+      SECONDARY,
       nameWidth,
       tipLines,
       measure,

@@ -127,19 +127,37 @@ describe("visual tokens", () => {
   });
 
   it("skins capture and report from the variables, without a second palette", () => {
+    const sheet = read("miniprogram/app.wxss");
     const capture = read("miniprogram/pages/capture/capture.wxss");
     const report = read("miniprogram/pages/report/report.wxss");
+    const captureMarkup = read("miniprogram/pages/capture/capture.wxml");
+    const reportMarkup = read("miniprogram/pages/report/report.wxml");
     for (const file of [capture, report]) {
       assert.doesNotMatch(file, /#[0-9a-fA-F]{3,8}\b/);
-      assert.match(file, /var\(--color-primary\)/);
       assert.match(file, /var\(--radius-card\)/);
       assert.match(file, /var\(--type-title\)/);
+      assert.doesNotMatch(file, /\.btn-primary|\.btn-outline|\.btn-share|\.btn-again|\.ordinal/);
     }
+    assert.match(sheet, /\.btn-primary\s*\{[^}]*var\(--color-primary\)/);
+    assert.match(sheet, /\.btn-outline\s*\{[^}]*var\(--color-line\)/);
+    assert.match(sheet, /button\[disabled\]\.btn-primary/);
+    assert.match(sheet, /\.btn-muted\s*,\s*button\[disabled\]\.btn-primary/);
+    assert.match(sheet, /\.ordinal\s*\{[^}]*var\(--size-ordinal\)/);
+    assert.equal(theme.size.ordinal, 48);
+    assert.match(captureMarkup, /class="ordinal"/);
+    assert.match(reportMarkup, /class="ordinal"/);
+    assert.match(captureMarkup, /class="btn-primary/);
+    assert.match(reportMarkup, /class="btn-primary /);
+    assert.match(reportMarkup, /class="btn-outline /);
+    assert.doesNotMatch(captureMarkup, /slot-index|btn-share|btn-again/);
+    assert.doesNotMatch(reportMarkup, /exercise-index|btn-share|btn-again/);
+    assert.match(capture, /var\(--color-primary\)/);
     assert.match(capture, /var\(--color-primary-soft\)/);
     assert.match(report, /var\(--color-primary-soft\)/);
     assert.match(report, /var\(--color-primary-ink\)/);
     assert.match(report, /var\(--type-display\)/);
     assert.doesNotMatch(read("src/share-card.ts"), /#[0-9a-fA-F]{3,8}\b/);
+    assert.doesNotMatch(read("src/share-card.ts"), /\bMUTED\b/);
   });
 
   it("paints the share card with the same light teal tokens", () => {

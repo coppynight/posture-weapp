@@ -23,6 +23,10 @@ export const theme = {
     badge: 18,
     pill: 999,
   },
+  /** Box size for the numbered marks on the capture slots and the report exercises. */
+  size: {
+    ordinal: 48,
+  },
   type: {
     title: 56,
     display: 42,
@@ -53,9 +57,9 @@ export const themeCssVars = {
   "--radius-control": `${theme.radius.control}rpx`,
   "--radius-media": `${theme.radius.media}rpx`,
   "--radius-pill": `${theme.radius.pill}rpx`,
+  "--size-ordinal": `${theme.size.ordinal}rpx`,
   "--type-title": `${theme.type.title}rpx`,
   "--type-display": `${theme.type.display}rpx`,
-  "--type-poster-title": `${theme.type.posterTitle}rpx`,
   "--type-section": `${theme.type.section}rpx`,
   "--type-card-title": `${theme.type.cardTitle}rpx`,
   "--type-body": `${theme.type.body}rpx`,

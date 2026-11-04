@@ -22,7 +22,7 @@ const BAND_HEADING = theme_js_1.theme.color.primaryInk;
 const BAND_INK = theme_js_1.theme.color.ink;
 const PANEL = theme_js_1.theme.color.surface;
 const INK = theme_js_1.theme.color.ink;
-const MUTED = theme_js_1.theme.color.inkSecondary;
+const SECONDARY = theme_js_1.theme.color.inkSecondary;
 const ACCENT = theme_js_1.theme.color.primaryInk;
 const BADGE = theme_js_1.theme.color.primary;
 const BADGE_INK = theme_js_1.theme.color.onPrimary;
@@ -176,7 +176,7 @@ function compose(report, measure, attempt) {
         cursor = paintExercise(blocks, lines, exercise, index + 1, attempt.tipLines, cursor, measure);
     });
     cursor += 8;
-    placeText(lines, "footer", copy_js_1.COPY.shareFooter, PAD, cursor, theme_js_1.theme.type.caption, "normal", MUTED, CONTENT_WIDTH, null, measure);
+    placeText(lines, "footer", copy_js_1.COPY.shareFooter, PAD, cursor, theme_js_1.theme.type.caption, "normal", SECONDARY, CONTENT_WIDTH, null, measure);
     return { width: exports.SHARE_CARD_WIDTH, height: exports.SHARE_CARD_HEIGHT, blocks, lines };
 }
 function paintDisclaimer(blocks, lines, disclaimer, measure) {
@@ -220,7 +220,7 @@ function paintLead(blocks, lines, lead, issues, attempt, cursor, measure) {
     const detail = drawnText(lead.detail);
     if (detail) {
         inner += 6;
-        inner = placeText(lines, "leadDetail", detail, textX, inner, theme_js_1.theme.type.subhead, "normal", MUTED, textWidth, attempt.detailLines, measure);
+        inner = placeText(lines, "leadDetail", detail, textX, inner, theme_js_1.theme.type.subhead, "normal", SECONDARY, textWidth, attempt.detailLines, measure);
     }
     const others = issues.filter((issue) => issue !== lead).map((issue) => drawnText(issue.title)).filter((title) => title !== "");
     if (attempt.showOthers && others.length > 0) {
@@ -260,7 +260,7 @@ function paintExercise(blocks, lines, exercise, index, tipLines, cursor, measure
     let inner = placeText(lines, "exerciseName", drawnText(exercise.name), nameX, badgeY, theme_js_1.theme.type.reading, "bold", INK, nameWidth, null, measure);
     if (tipLines > 0) {
         inner += 4;
-        inner = placeText(lines, "exerciseTip", drawnText(exercise.instruction), nameX, inner, theme_js_1.theme.type.caption, "normal", MUTED, nameWidth, tipLines, measure);
+        inner = placeText(lines, "exerciseTip", drawnText(exercise.instruction), nameX, inner, theme_js_1.theme.type.caption, "normal", SECONDARY, nameWidth, tipLines, measure);
     }
     const contentBottom = Math.max(inner, badgeY + badgeSize);
     return closePanel(panel, contentBottom, cursor) + 12;
