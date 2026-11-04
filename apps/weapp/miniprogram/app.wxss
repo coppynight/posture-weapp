@@ -1,7 +1,31 @@
 page {
-  background: #f3efe6;
-  color: #1c1915;
-  font-size: 30rpx;
+  --color-bg: #f5f7f7;
+  --color-surface: #ffffff;
+  --color-ink: #1c2422;
+  --color-ink-secondary: #3e4a47;
+  --color-muted: #55625e;
+  --color-line: #dce3e1;
+  --color-primary: #0f766e;
+  --color-on-primary: #f4fffb;
+  --color-primary-soft: #d4efe8;
+  --color-primary-ink: #0c5c52;
+  --radius-card: 40rpx;
+  --radius-control: 32rpx;
+  --radius-media: 24rpx;
+  --radius-pill: 999rpx;
+  --type-title: 56rpx;
+  --type-display: 42rpx;
+  --type-poster-title: 40rpx;
+  --type-section: 34rpx;
+  --type-card-title: 32rpx;
+  --type-body: 30rpx;
+  --type-reading: 28rpx;
+  --type-subhead: 26rpx;
+  --type-caption: 24rpx;
+  --type-index: 22rpx;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-size: var(--type-body);
   line-height: 1.5;
   font-family: "PingFang SC", "Noto Sans SC", sans-serif;
 }

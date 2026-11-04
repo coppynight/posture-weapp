@@ -8,16 +8,15 @@
 
 .eyebrow {
   display: block;
-  color: #0f6e56;
-  font-size: 24rpx;
+  color: var(--color-primary-ink);
+  font-size: var(--type-caption);
   font-weight: 700;
-  letter-spacing: 0.08em;
 }
 
 .title {
   display: block;
   margin-top: 8rpx;
-  font-size: 52rpx;
+  font-size: var(--type-title);
   font-weight: 700;
   line-height: 1.25;
 }
@@ -25,28 +24,28 @@
 .lead {
   display: block;
   margin-top: 16rpx;
-  color: #5c564c;
-  font-size: 28rpx;
+  color: var(--color-muted);
+  font-size: var(--type-reading);
   line-height: 1.6;
 }
 
 .slot {
   margin-top: 24rpx;
   padding: 28rpx;
-  background: #fffdf8;
-  border: 2rpx dashed #d9d0c2;
-  border-radius: 28rpx;
+  background: var(--color-surface);
+  border: 2rpx dashed var(--color-line);
+  border-radius: var(--radius-card);
 }
 
 .slot-filled {
   border-style: solid;
-  border-color: #e4dccf;
+  border-color: var(--color-line);
 }
 
 .slot-warn {
   border-style: solid;
-  border-color: #e08a2c;
-  background: #fff8ef;
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .slot-head {
@@ -59,10 +58,10 @@
   width: 56rpx;
   height: 56rpx;
   margin-right: 16rpx;
-  border-radius: 28rpx;
-  background: #1c1915;
-  color: #fffdf8;
-  font-size: 28rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--type-reading);
   font-weight: 700;
   text-align: center;
   line-height: 56rpx;
@@ -74,23 +73,23 @@
 
 .slot-label {
   display: block;
-  font-size: 34rpx;
+  font-size: var(--type-section);
   font-weight: 700;
 }
 
 .slot-hint {
   display: block;
   margin-top: 4rpx;
-  color: #6d675d;
-  font-size: 24rpx;
+  color: var(--color-muted);
+  font-size: var(--type-caption);
 }
 
 .preview {
   width: 100%;
   height: 420rpx;
   margin-top: 20rpx;
-  border-radius: 20rpx;
-  background: #ebe4d8;
+  border-radius: var(--radius-media);
+  background: var(--color-line);
 }
 
 .slot-actions {
@@ -104,15 +103,15 @@
   align-items: center;
   justify-content: center;
   height: 80rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
+  border-radius: var(--radius-control);
+  font-size: var(--type-reading);
   font-weight: 700;
 }
 
 .btn-ghost {
   flex: 1;
-  background: #f3efe6;
-  color: #1c1915;
+  background: var(--color-bg);
+  color: var(--color-ink);
 }
 
 .btn-ghost + .btn-ghost {
@@ -122,22 +121,22 @@
 .btn-text {
   margin-top: 12rpx;
   height: 64rpx;
-  color: #8a4b12;
-  font-size: 26rpx;
+  color: var(--color-primary-ink);
+  font-size: var(--type-caption);
 }
 
 .retake {
   margin-top: 28rpx;
   padding: 28rpx;
-  background: #fff4e4;
-  border-radius: 28rpx;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-card);
 }
 
 .retake-title {
   display: block;
-  font-size: 36rpx;
+  font-size: var(--type-section);
   font-weight: 700;
-  color: #7a3e00;
+  color: var(--color-primary-ink);
 }
 
 .retake-lead,
@@ -146,8 +145,8 @@
 .check-item {
   display: block;
   margin-top: 12rpx;
-  color: #3f3428;
-  font-size: 28rpx;
+  color: var(--color-ink-secondary);
+  font-size: var(--type-reading);
   line-height: 1.55;
 }
 
@@ -159,7 +158,7 @@
 .checklist-title {
   display: block;
   margin-top: 8rpx;
-  font-size: 28rpx;
+  font-size: var(--type-reading);
   font-weight: 700;
 }
 
@@ -169,18 +168,18 @@
   right: 0;
   bottom: 0;
   padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
-  background: rgba(243, 239, 230, 0.96);
-  box-shadow: 0 -12rpx 32rpx rgba(28, 25, 21, 0.06);
+  background: var(--color-bg);
+  border-top: 2rpx solid var(--color-line);
 }
 
 .notice {
   display: block;
   margin-bottom: 12rpx;
   padding: 18rpx 20rpx;
-  border-radius: 16rpx;
-  background: #fff1e6;
-  color: #7a2e0e;
-  font-size: 28rpx;
+  border-radius: var(--radius-control);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-ink);
+  font-size: var(--type-reading);
   font-weight: 700;
   line-height: 1.5;
 }
@@ -188,24 +187,25 @@
 .need-both {
   display: block;
   margin-bottom: 14rpx;
-  color: #5c564c;
-  font-size: 24rpx;
+  color: var(--color-muted);
+  font-size: var(--type-caption);
 }
 
 .btn-primary {
   width: 100%;
   height: 96rpx;
-  background: #0f6e56;
-  color: #f7fffb;
-  font-size: 32rpx;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--type-card-title);
   font-weight: 700;
 }
 
 .btn-muted {
-  background: #8eaaa2;
+  background: var(--color-line);
+  color: var(--color-muted);
 }
 
 button[disabled].btn-primary {
-  background: #8eaaa2;
-  color: #f7fffb;
+  background: var(--color-line);
+  color: var(--color-muted);
 }

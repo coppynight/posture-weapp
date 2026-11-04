@@ -1,5 +1,6 @@
 import { COPY } from "./copy.js";
 import { severityLabel } from "./present.js";
+import { theme } from "./theme.js";
 import type { ExerciseSuggestion, PostureIssue, Report } from "./types.js";
 
 /** Portrait poster. 750 matches the mini program design width; 1334 is a phone-screen height that stays readable in an album and in a WeChat chat. */
@@ -12,14 +13,16 @@ export const SHARE_CARD_HEIGHT = 1334;
  */
 export const SHARE_SAVE_API = "saveImageToPhotosAlbum" as const;
 
-const BACKGROUND = "#f3efe6";
-const BAND = "#3f2a1d";
-const BAND_INK = "#fff8ee";
-const PANEL = "#fffdf8";
-const INK = "#1c1915";
-const MUTED = "#3f3428";
-const ACCENT = "#0f6e56";
-const ACCENT_INK = "#f7fffb";
+const BACKGROUND = theme.color.bg;
+const BAND = theme.color.primarySoft;
+const BAND_HEADING = theme.color.primaryInk;
+const BAND_INK = theme.color.ink;
+const PANEL = theme.color.surface;
+const INK = theme.color.ink;
+const MUTED = theme.color.inkSecondary;
+const ACCENT = theme.color.primaryInk;
+const BADGE = theme.color.primary;
+const BADGE_INK = theme.color.onPrimary;
 
 const PAD = 36;
 const CONTENT_WIDTH = SHARE_CARD_WIDTH - PAD * 2;
@@ -52,6 +55,8 @@ export interface ShareBlock {
   width: number;
   height: number;
   color: string;
+  /** Corner radius in poster pixels. Omitted on full-bleed fills. */
+  radius?: number;
 }
 
 export interface ShareLine {
@@ -79,6 +84,11 @@ export interface ShareCanvas {
   textBaseline: "top" | "middle" | "alphabetic" | "bottom";
   fillRect(x: number, y: number, width: number, height: number): void;
   fillText(text: string, x: number, y: number): void;
+  beginPath(): void;
+  moveTo(x: number, y: number): void;
+  arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
+  closePath(): void;
+  fill(): void;
 }
 
 export interface ShareSaveDeps {
@@ -133,13 +143,27 @@ export function paintShareCard(ctx: ShareCanvas, layout: ShareCardLayout): void 
   ctx.textBaseline = "top";
   for (const block of layout.blocks) {
     ctx.fillStyle = block.color;
-    ctx.fillRect(block.x, block.y, block.width, block.height);
+    const radius = block.radius ?? 0;
+    if (radius > 0) fillRoundRect(ctx, block.x, block.y, block.width, block.height, radius);
+    else ctx.fillRect(block.x, block.y, block.width, block.height);
   }
   for (const line of layout.lines) {
     ctx.fillStyle = line.color;
     ctx.font = line.weight === "bold" ? `bold ${line.fontSize}px sans-serif` : `${line.fontSize}px sans-serif`;
     ctx.fillText(line.text, line.x, line.y);
   }
+}
+
+function fillRoundRect(ctx: ShareCanvas, x: number, y: number, width: number, height: number, radius: number): void {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
+  ctx.fill();
 }
 
 /**
@@ -211,19 +235,19 @@ function compose(report: Report, measure: TextMeasure, attempt: Attempt): ShareC
   if (bandHeight === null) return null;
 
   let cursor = bandHeight + 28;
-  cursor = placeText(lines, "title", COPY.shareTitle, PAD, cursor, 40, "bold", INK, CONTENT_WIDTH, null, measure);
+  cursor = placeText(lines, "title", COPY.shareTitle, PAD, cursor, theme.type.posterTitle, "bold", INK, CONTENT_WIDTH, null, measure);
   cursor += 8;
-  cursor = placeText(lines, "section", COPY.shareLead, PAD, cursor, 26, "bold", ACCENT, CONTENT_WIDTH, null, measure);
+  cursor = placeText(lines, "section", COPY.shareLead, PAD, cursor, theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
   cursor += 8;
   cursor = paintLead(blocks, lines, lead, report.issues, attempt, cursor, measure);
   cursor += 16;
-  cursor = placeText(lines, "section", COPY.shareExercises, PAD, cursor, 26, "bold", ACCENT, CONTENT_WIDTH, null, measure);
+  cursor = placeText(lines, "section", COPY.shareExercises, PAD, cursor, theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
   cursor += 8;
   report.exerciseSuggestions.forEach((exercise, index) => {
     cursor = paintExercise(blocks, lines, exercise, index + 1, attempt.tipLines, cursor, measure);
   });
   cursor += 8;
-  placeText(lines, "footer", COPY.shareFooter, PAD, cursor, 24, "normal", MUTED, CONTENT_WIDTH, null, measure);
+  placeText(lines, "footer", COPY.shareFooter, PAD, cursor, theme.type.caption, "normal", MUTED, CONTENT_WIDTH, null, measure);
   return { width: SHARE_CARD_WIDTH, height: SHARE_CARD_HEIGHT, blocks, lines };
 }
 
@@ -233,8 +257,8 @@ function paintDisclaimer(
   disclaimer: string,
   measure: TextMeasure,
 ): number | null {
-  const bodySize = 28;
-  const headingSize = 42;
+  const bodySize = theme.type.reading;
+  const headingSize = theme.type.display;
   const body = wrapText(disclaimer, CONTENT_WIDTH, bodySize, "normal", measure, null);
   if (body.join("") !== disclaimer.replace(/\n/g, "")) return null;
   const top = 32;
@@ -243,7 +267,7 @@ function paintDisclaimer(
   const bandHeight = bodyY + body.length * lineHeight(bodySize) + 32;
   if (bandHeight > SHARE_CARD_HEIGHT * 0.5) return null;
   blocks.push({ role: "disclaimer", x: 0, y: 0, width: SHARE_CARD_WIDTH, height: bandHeight, color: BAND });
-  placeText(lines, "disclaimerHeading", COPY.disclaimerHeading, PAD, headingY, headingSize, "bold", BAND_INK, CONTENT_WIDTH, null, measure);
+  placeText(lines, "disclaimerHeading", COPY.disclaimerHeading, PAD, headingY, headingSize, "bold", BAND_HEADING, CONTENT_WIDTH, null, measure);
   body.forEach((text, index) => {
     lines.push({
       role: "disclaimer",
@@ -271,21 +295,21 @@ function paintLead(
   let inner = cursor + 18;
   const textX = PAD + 18;
   const textWidth = CONTENT_WIDTH - 36;
-  inner = placeText(lines, "leadTitle", drawnText(lead.title), textX, inner, 34, "bold", INK, textWidth, null, measure);
+  inner = placeText(lines, "leadTitle", drawnText(lead.title), textX, inner, theme.type.section, "bold", INK, textWidth, null, measure);
   const severity = severityLabel(lead.severity);
   if (severity) {
     inner += 4;
-    inner = placeText(lines, "severity", severity, textX, inner, 24, "bold", ACCENT, textWidth, 1, measure);
+    inner = placeText(lines, "severity", severity, textX, inner, theme.type.caption, "bold", ACCENT, textWidth, 1, measure);
   }
   const detail = drawnText(lead.detail);
   if (detail) {
     inner += 6;
-    inner = placeText(lines, "leadDetail", detail, textX, inner, 26, "normal", MUTED, textWidth, attempt.detailLines, measure);
+    inner = placeText(lines, "leadDetail", detail, textX, inner, theme.type.subhead, "normal", MUTED, textWidth, attempt.detailLines, measure);
   }
   const others = issues.filter((issue) => issue !== lead).map((issue) => drawnText(issue.title)).filter((title) => title !== "");
   if (attempt.showOthers && others.length > 0) {
     inner += 8;
-    inner = placeText(lines, "otherIssues", `${COPY.shareAlso}：${others.join("、")}`, textX, inner, 24, "normal", INK, textWidth, 2, measure);
+    inner = placeText(lines, "otherIssues", `${COPY.shareAlso}：${others.join("、")}`, textX, inner, theme.type.caption, "normal", INK, textWidth, 2, measure);
   }
   return closePanel(panel, inner, cursor);
 }
@@ -300,12 +324,20 @@ function paintExercise(
   measure: TextMeasure,
 ): number {
   const panel = openPanel(blocks, cursor);
-  const badgeSize = 36;
+  const badgeSize = theme.radius.badge * 2;
   const innerLeft = PAD + 16;
   const badgeY = cursor + 16;
-  blocks.push({ role: "badge", x: innerLeft, y: badgeY, width: badgeSize, height: badgeSize, color: ACCENT });
+  blocks.push({
+    role: "badge",
+    x: innerLeft,
+    y: badgeY,
+    width: badgeSize,
+    height: badgeSize,
+    color: BADGE,
+    radius: theme.radius.badge,
+  });
   const indexText = String(index);
-  const indexSize = 22;
+  const indexSize = theme.type.index;
   const indexWidth = measure(indexText, indexSize, "bold");
   lines.push({
     role: "exerciseIndex",
@@ -314,11 +346,11 @@ function paintExercise(
     y: badgeY + (badgeSize - indexSize) / 2,
     fontSize: indexSize,
     weight: "bold",
-    color: ACCENT_INK,
+    color: BADGE_INK,
   });
   const nameX = innerLeft + badgeSize + 12;
   const nameWidth = PAD + CONTENT_WIDTH - 16 - nameX;
-  let inner = placeText(lines, "exerciseName", drawnText(exercise.name), nameX, badgeY, 28, "bold", INK, nameWidth, null, measure);
+  let inner = placeText(lines, "exerciseName", drawnText(exercise.name), nameX, badgeY, theme.type.reading, "bold", INK, nameWidth, null, measure);
   if (tipLines > 0) {
     inner += 4;
     inner = placeText(
@@ -327,7 +359,7 @@ function paintExercise(
       drawnText(exercise.instruction),
       nameX,
       inner,
-      24,
+      theme.type.caption,
       "normal",
       MUTED,
       nameWidth,
@@ -340,7 +372,15 @@ function paintExercise(
 }
 
 function openPanel(blocks: ShareBlock[], cursor: number): ShareBlock {
-  const panel: ShareBlock = { role: "panel", x: PAD, y: cursor, width: CONTENT_WIDTH, height: 0, color: PANEL };
+  const panel: ShareBlock = {
+    role: "panel",
+    x: PAD,
+    y: cursor,
+    width: CONTENT_WIDTH,
+    height: 0,
+    color: PANEL,
+    radius: theme.radius.card,
+  };
   blocks.push(panel);
   return panel;
 }

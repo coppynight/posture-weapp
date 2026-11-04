@@ -10,12 +10,15 @@ import {
   SHARE_SAVE_API,
   estimateTextWidth,
   layoutShareCard,
+  paintShareCard,
   saveShareCard,
   type ShareBlock,
+  type ShareCanvas,
   type ShareCardLayout,
   type ShareLine,
   type ShareSaveDeps,
 } from "../src/share-card.js";
+import { theme } from "../src/theme.js";
 import type { Report } from "../src/types.js";
 import { sampleReport } from "./fixtures.js";
 
@@ -219,8 +222,8 @@ describe("share card layout", () => {
     if (!heading || !band) return;
     assert.equal(heading.text, "非医疗诊断");
     assert.ok(heading.fontSize >= 36);
-    assert.equal(heading.color.toLowerCase(), "#fff8ee");
-    assert.equal(band.color.toLowerCase(), "#3f2a1d");
+    assert.equal(heading.color.toLowerCase(), theme.color.primaryInk);
+    assert.equal(band.color.toLowerCase(), theme.color.primarySoft);
     assert.equal(band.y, 0);
     assert.ok(band.height >= heading.fontSize + 24);
     assert.equal(textOf(layout, "disclaimer"), report.disclaimer);
@@ -228,7 +231,8 @@ describe("share card layout", () => {
       assert.ok(line.fontSize >= 24, `${line.role} ${line.fontSize}`);
       assert.ok(line.y >= band.y);
       assert.ok(line.y + line.fontSize <= band.y + band.height);
-      assert.equal(line.color.toLowerCase(), "#fff8ee");
+      const ink = line.role === "disclaimerHeading" ? theme.color.primaryInk : theme.color.ink;
+      assert.equal(line.color.toLowerCase(), ink);
     }
     assert.ok(band.y + band.height < HEIGHT * 0.45);
 
@@ -264,12 +268,20 @@ describe("share card layout", () => {
     const image = rasterize(layout);
     assert.deepEqual(readPngSize(image.png), { width: WIDTH, height: HEIGHT });
     assert.ok(image.png.length > 1000);
-    const lightInk = countColor(image.rgb, WIDTH, band, "#fff8ee");
-    const bandInk = countColor(image.rgb, WIDTH, band, "#3f2a1d");
-    assert.ok(lightInk > 800, `disclaimer ink ${lightInk}`);
-    assert.ok(bandInk > lightInk, "disclaimer band stays visible around the text");
-    const lower: ShareBlock = { role: "background", x: 0, y: band.y + band.height, width: WIDTH, height: HEIGHT - band.height, color: "#1c1915" };
-    assert.ok(countColor(image.rgb, WIDTH, lower, "#1c1915") > 400, "problem and exercise text is painted below the disclaimer");
+    const headingInk = countColor(image.rgb, WIDTH, band, theme.color.primaryInk);
+    const bodyInk = countColor(image.rgb, WIDTH, band, theme.color.ink);
+    const bandFill = countColor(image.rgb, WIDTH, band, theme.color.primarySoft);
+    assert.ok(headingInk + bodyInk > 800, `disclaimer ink ${headingInk + bodyInk}`);
+    assert.ok(bandFill > headingInk + bodyInk, "disclaimer band stays visible around the text");
+    const lower: ShareBlock = {
+      role: "background",
+      x: 0,
+      y: band.y + band.height,
+      width: WIDTH,
+      height: HEIGHT - band.height,
+      color: theme.color.ink,
+    };
+    assert.ok(countColor(image.rgb, WIDTH, lower, theme.color.ink) > 400, "problem and exercise text is painted below the disclaimer");
   });
 
   it("leads with the most severe issue and still fits a long report", () => {
@@ -339,7 +351,67 @@ describe("share card layout", () => {
     assert.equal(textOf(untitledDetail!, "leadDetail"), "");
     assert.equal(textOf(untitledDetail!, "disclaimer"), report.disclaimer);
   });
+
+  it("rounds poster panels and badges with the shared radii", () => {
+    const layout = layoutShareCard(validReport());
+    assert.ok(layout);
+    if (!layout) return;
+    const panels = layout.blocks.filter((block) => block.role === "panel");
+    const badges = layout.blocks.filter((block) => block.role === "badge");
+    assert.ok(panels.length > 0);
+    assert.ok(badges.length > 0);
+    for (const panel of panels) assert.equal(panel.radius, theme.radius.card);
+    for (const badge of badges) assert.equal(badge.radius, theme.radius.badge);
+    for (const line of layout.lines) {
+      const glyph = box(line);
+      for (const block of [...panels, ...badges]) {
+        const centerX = line.x + glyph.w / 2;
+        const centerY = line.y + glyph.h / 2;
+        if (!insideRounded(block, centerX, centerY)) continue;
+        assert.equal(insideRounded(block, line.x, line.y), true, line.text);
+        assert.equal(insideRounded(block, line.x + glyph.w, line.y), true, line.text);
+        assert.equal(insideRounded(block, line.x, line.y + glyph.h), true, line.text);
+        assert.equal(insideRounded(block, line.x + glyph.w, line.y + glyph.h), true, line.text);
+      }
+    }
+    const arcs: number[] = [];
+    let rects = 0;
+    const ctx: ShareCanvas = {
+      fillStyle: "",
+      font: "",
+      textAlign: "left",
+      textBaseline: "top",
+      fillRect() {
+        rects += 1;
+      },
+      fillText() {},
+      beginPath() {},
+      moveTo() {},
+      arcTo(_x1, _y1, _x2, _y2, radius) {
+        arcs.push(radius);
+      },
+      closePath() {},
+      fill() {},
+    };
+    paintShareCard(ctx, layout);
+    assert.equal(rects, layout.blocks.filter((block) => (block.radius ?? 0) === 0).length);
+    assert.equal(arcs.filter((radius) => radius === theme.radius.card).length, panels.length * 4);
+    assert.equal(arcs.filter((radius) => radius === theme.radius.badge).length, badges.length * 4);
+  });
 });
+
+function insideRounded(block: ShareBlock, x: number, y: number): boolean {
+  const right = block.x + block.width;
+  const bottom = block.y + block.height;
+  if (x < block.x || y < block.y || x > right || y > bottom) return false;
+  const radius = Math.min(block.radius ?? 0, block.width / 2, block.height / 2);
+  if (radius <= 0) return true;
+  const cx = Math.min(Math.max(x, block.x + radius), right - radius);
+  const cy = Math.min(Math.max(y, block.y + radius), bottom - radius);
+  const dx = x - cx;
+  const dy = y - cy;
+  return dx * dx + dy * dy <= radius * radius + 1e-6;
+}
 
 describe("save share card", () => {
   function deps(log: string[], outcome: "saved" | "denied" | "failed" | "throw", confirm = false): ShareSaveDeps {

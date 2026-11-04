@@ -51,7 +51,8 @@ describe("mini program shell", () => {
     assert.match(wxml, /\{\{disclaimerHeading\}\}/);
     const style = read("miniprogram/pages/report/report.wxss");
     assert.match(style, /position:\s*sticky/);
-    assert.match(style, /#3f2a1d/);
+    assert.match(style, /var\(--color-primary-soft\)/);
+    assert.match(style, /var\(--type-display\)/);
   });
 
   it("keeps visible markup in Chinese", () => {
