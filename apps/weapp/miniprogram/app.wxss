@@ -1,15 +1,15 @@
 page {
-  --color-bg: #f5f7f7;
+  --color-bg: #f7f7f8;
   --color-surface: #ffffff;
-  --color-ink: #1c2422;
-  --color-ink-secondary: #3e4a47;
-  --color-muted: #55625e;
-  --color-line: #dce3e1;
-  --color-primary: #0f766e;
-  --color-on-primary: #f4fffb;
-  --color-primary-soft: #d4efe8;
-  --color-primary-ink: #0c5c52;
-  --radius-card: 40rpx;
+  --color-ink: #0d0d0d;
+  --color-ink-secondary: #3f3f46;
+  --color-muted: #5d5d67;
+  --color-line: #e6e6e6;
+  --color-primary: #0d0d0d;
+  --color-on-primary: #ffffff;
+  --color-primary-soft: #f3f3f3;
+  --color-primary-ink: #0d0d0d;
+  --radius-card: 32rpx;
   --radius-control: 32rpx;
   --radius-media: 24rpx;
   --radius-pill: 999rpx;

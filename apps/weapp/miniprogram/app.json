@@ -5,9 +5,9 @@
   ],
   "window": {
     "navigationBarTitleText": "体态自拍",
-    "navigationBarBackgroundColor": "#f5f7f7",
+    "navigationBarBackgroundColor": "#f7f7f8",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f5f7f7",
+    "backgroundColor": "#f7f7f8",
     "backgroundTextStyle": "dark"
   },
   "networkTimeout": {

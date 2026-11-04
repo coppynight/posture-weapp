@@ -11,14 +11,14 @@
   display: block;
   color: var(--color-primary-ink);
   font-size: var(--type-display);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
 }
 
 .disclaimer-body {
   display: block;
   margin-top: 16rpx;
-  color: var(--color-ink);
+  color: var(--color-ink-secondary);
   font-size: var(--type-body);
   font-weight: 600;
   line-height: 1.65;
@@ -31,7 +31,7 @@
 .title {
   display: block;
   font-size: var(--type-title);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -43,7 +43,7 @@
   display: block;
   color: var(--color-ink);
   font-size: var(--type-section);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .section-note {
@@ -70,7 +70,7 @@
 .card-title {
   flex: 1;
   font-size: var(--type-card-title);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .tag {
@@ -78,7 +78,7 @@
   padding: 4rpx 14rpx;
   border-radius: var(--radius-pill);
   background: var(--color-primary-soft);
-  color: var(--color-primary-ink);
+  color: var(--color-ink-secondary);
   font-size: var(--type-index);
 }
 
@@ -92,7 +92,6 @@
 }
 
 .related {
-  color: var(--color-primary-ink);
   font-size: var(--type-caption);
 }
 

@@ -1,25 +1,26 @@
 /**
  * Shared visual tokens for the capture page, the report page, and the share-card poster.
- * 「年轻干练」: a light ground, one teal, neutral greys, large radii, and one type scale.
+ * Confirmed moodboard: a light ground, neutral gray, and one near-black accent.
  * Pages read these values as CSS variables in app.wxss. The poster imports this module.
  */
 export const theme = {
   color: {
-    bg: "#f5f7f7",
+    bg: "#f7f7f8",
     surface: "#ffffff",
-    ink: "#1c2422",
-    inkSecondary: "#3e4a47",
-    muted: "#55625e",
-    line: "#dce3e1",
-    primary: "#0f766e",
-    onPrimary: "#f4fffb",
-    primarySoft: "#d4efe8",
-    primaryInk: "#0c5c52",
+    ink: "#0d0d0d",
+    inkSecondary: "#3f3f46",
+    muted: "#5d5d67",
+    line: "#e6e6e6",
+    primary: "#0d0d0d",
+    onPrimary: "#ffffff",
+    primarySoft: "#f3f3f3",
+    primaryInk: "#0d0d0d",
   },
   radius: {
-    card: 40,
+    card: 32,
     control: 32,
     media: 24,
+    /** Poster ordinal corner radius. On-screen ordinals use size.ordinal with radius.pill. */
     badge: 18,
     pill: 999,
   },

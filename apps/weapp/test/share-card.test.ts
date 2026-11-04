@@ -231,7 +231,7 @@ describe("share card layout", () => {
       assert.ok(line.fontSize >= 24, `${line.role} ${line.fontSize}`);
       assert.ok(line.y >= band.y);
       assert.ok(line.y + line.fontSize <= band.y + band.height);
-      const ink = line.role === "disclaimerHeading" ? theme.color.primaryInk : theme.color.ink;
+      const ink = line.role === "disclaimerHeading" ? theme.color.primaryInk : theme.color.inkSecondary;
       assert.equal(line.color.toLowerCase(), ink);
     }
     assert.ok(band.y + band.height < HEIGHT * 0.45);
@@ -269,7 +269,17 @@ describe("share card layout", () => {
     assert.deepEqual(readPngSize(image.png), { width: WIDTH, height: HEIGHT });
     assert.ok(image.png.length > 1000);
     const headingInk = countColor(image.rgb, WIDTH, band, theme.color.primaryInk);
-    const bodyInk = countColor(image.rgb, WIDTH, band, theme.color.ink);
+    const bodyInk = countColor(image.rgb, WIDTH, band, theme.color.inkSecondary);
+    assert.equal(layout.blocks.find((block) => block.role === "background")?.color, theme.color.bg);
+    for (const badge of layout.blocks.filter((block) => block.role === "badge")) {
+      assert.equal(badge.color, theme.color.primary);
+    }
+    for (const panel of layout.blocks.filter((block) => block.role === "panel")) {
+      assert.equal(panel.color, theme.color.surface);
+    }
+    for (const line of layout.lines.filter((item) => item.role === "exerciseIndex")) {
+      assert.equal(line.color, theme.color.onPrimary);
+    }
     const bandFill = countColor(image.rgb, WIDTH, band, theme.color.primarySoft);
     assert.ok(headingInk + bodyInk > 800, `disclaimer ink ${headingInk + bodyInk}`);
     assert.ok(bandFill > headingInk + bodyInk, "disclaimer band stays visible around the text");

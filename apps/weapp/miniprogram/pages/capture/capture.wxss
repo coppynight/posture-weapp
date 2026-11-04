@@ -8,16 +8,16 @@
 
 .eyebrow {
   display: block;
-  color: var(--color-primary-ink);
+  color: var(--color-muted);
   font-size: var(--type-caption);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .title {
   display: block;
   margin-top: 8rpx;
   font-size: var(--type-title);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -33,19 +33,13 @@
   margin-top: 24rpx;
   padding: 28rpx;
   background: var(--color-surface);
-  border: 2rpx dashed var(--color-line);
+  border: 2rpx solid var(--color-line);
   border-radius: var(--radius-card);
 }
 
-.slot-filled {
-  border-style: solid;
-  border-color: var(--color-line);
-}
-
+.slot-filled,
 .slot-warn {
-  border-style: solid;
   border-color: var(--color-primary);
-  background: var(--color-primary-soft);
 }
 
 .slot-head {
@@ -61,7 +55,7 @@
 .slot-label {
   display: block;
   font-size: var(--type-section);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .slot-hint {
@@ -108,22 +102,23 @@
 .btn-text {
   margin-top: 12rpx;
   height: 64rpx;
-  color: var(--color-primary-ink);
+  color: var(--color-ink);
   font-size: var(--type-caption);
 }
 
 .retake {
   margin-top: 28rpx;
   padding: 28rpx;
-  background: var(--color-primary-soft);
+  background: var(--color-surface);
+  border: 2rpx solid var(--color-line);
   border-radius: var(--radius-card);
 }
 
 .retake-title {
   display: block;
   font-size: var(--type-section);
-  font-weight: 700;
-  color: var(--color-primary-ink);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 .retake-lead,
@@ -146,7 +141,7 @@
   display: block;
   margin-top: 8rpx;
   font-size: var(--type-reading);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .submit-bar {
@@ -167,7 +162,7 @@
   background: var(--color-primary-soft);
   color: var(--color-primary-ink);
   font-size: var(--type-reading);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.5;
 }
 

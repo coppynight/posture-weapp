@@ -45,7 +45,7 @@ Automated tests do not open the WeChat runtime. Use this pass before treating th
 Manual paths:
 
 - Choose only the front photo (拍摄 or 从相册选择), then tap 开始分析. The request is not sent. The bar shows a prompt that the side photo is still required. Repeat with only the side photo.
-- Choose a front photo and a side photo. 开始分析 opens 训练参考. The **非医疗诊断** banner stays at the top on the light teal band and shows the disclaimer from the API. Issues, cause guesses, and 3–5 exercise suggestions are below it.
+- Choose a front photo and a side photo. 开始分析 opens 训练参考. The **非医疗诊断** banner stays at the top on a neutral band and shows the disclaimer from the API. Issues, cause guesses, and 3–5 exercise suggestions are below it.
 - Choose a clear front photo and a tiny or blurry side photo. The capture page shows 请重拍或补拍, the server summary, and the checklist. The report page does not open. Replace the side photo and submit again.
 - Leave the mini program, or tap 再测一次. The photos and the report are not listed anywhere afterward. Relaunching the mini program starts from an empty capture page.
 - On 训练参考, tap 保存分享卡. The button draws the poster and asks to write it to the album. Allow the album prompt. The toast 已保存到相册 means the image is in the album; forward that image in a WeChat chat. The poster shows 非医疗诊断, the disclaimer text, the main problem, and the exercise tips. It does not show the two selfies. If album access was refused, tap 去设置, allow 保存到相册, then tap 保存分享卡 again. The album permission sheet does not clear the report. There is no share button on the capture page, and the report page does not enable 转发小程序.

@@ -34,42 +34,35 @@ function contrast(a: string, b: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function hue(hex: string): number {
-  const red = channel(hex, 0) / 255;
-  const green = channel(hex, 1) / 255;
-  const blue = channel(hex, 2) / 255;
-  const max = Math.max(red, green, blue);
-  const min = Math.min(red, green, blue);
-  const delta = max - min;
-  if (delta === 0) return 0;
-  let turn = 0;
-  if (max === red) turn = ((green - blue) / delta) % 6;
-  else if (max === green) turn = (blue - red) / delta + 2;
-  else turn = (red - green) / delta + 4;
-  return (turn * 60 + 360) % 360;
-}
-
 function chroma(hex: string): number {
   return Math.max(channel(hex, 0), channel(hex, 1), channel(hex, 2)) - Math.min(channel(hex, 0), channel(hex, 1), channel(hex, 2));
 }
 
+const confirmedColors = {
+  bg: "#f7f7f8",
+  surface: "#ffffff",
+  ink: "#0d0d0d",
+  inkSecondary: "#3f3f46",
+  muted: "#5d5d67",
+  line: "#e6e6e6",
+  primary: "#0d0d0d",
+  onPrimary: "#ffffff",
+  primarySoft: "#f3f3f3",
+  primaryInk: "#0d0d0d",
+} as const;
+
+const retiredColors = ["#0f766e", "#f4fffb", "#d4efe8", "#0c5c52", "#f5f7f7", "#1c2422", "#3e4a47", "#55625e", "#dce3e1"];
+
 describe("visual tokens", () => {
-  it("keeps a light ground, one teal, and neutral greys", () => {
+  it("uses the confirmed light neutral palette and one near-black accent", () => {
+    assert.deepEqual(theme.color, confirmedColors);
     assert.ok(luminance(theme.color.bg) > 0.85, theme.color.bg);
     assert.ok(luminance(theme.color.surface) > 0.9, theme.color.surface);
     assert.ok(luminance(theme.color.primarySoft) > 0.75, theme.color.primarySoft);
     assert.ok(luminance(theme.color.line) > 0.7, theme.color.line);
-    for (const name of ["primary", "primaryInk"] as const) {
-      const hex = theme.color[name];
-      const tone = hue(hex);
-      assert.ok(tone >= 160 && tone <= 185, `${name} hue ${tone}`);
-      assert.ok(channel(hex, 1) > channel(hex, 0), name);
-      assert.ok(channel(hex, 1) > channel(hex, 2), name);
-    }
-    for (const name of ["bg", "ink", "inkSecondary", "muted", "line"] as const) {
-      assert.ok(chroma(theme.color[name]) <= 16, `${name} chroma ${chroma(theme.color[name])}`);
-    }
-    for (const hex of Object.values(theme.color)) {
+    for (const [name, hex] of Object.entries(theme.color)) {
+      assert.ok(chroma(hex) <= 16, `${name} chroma ${chroma(hex)}`);
+      assert.ok(channel(hex, 1) <= channel(hex, 0) + 8, `${name} green cast`);
       const red = channel(hex, 0);
       const green = channel(hex, 1);
       const blue = channel(hex, 2);
@@ -90,10 +83,13 @@ describe("visual tokens", () => {
     assert.ok(contrast(theme.color.onPrimary, theme.color.primary) >= 4.5);
   });
 
-  it("uses large radii and a descending type scale", () => {
-    assert.ok(theme.radius.card >= 40);
-    assert.ok(theme.radius.control >= 28);
-    assert.ok(theme.radius.card > theme.radius.control);
+  it("keeps control radius, a 32 card radius, and a descending type scale", () => {
+    assert.equal(theme.radius.card, 32);
+    assert.equal(theme.radius.control, 32);
+    assert.equal(theme.radius.media, 24);
+    assert.equal(theme.radius.pill, 999);
+    assert.equal(theme.size.ordinal, 48);
+    assert.notEqual(theme.radius.control, theme.size.ordinal);
     assert.ok(theme.radius.control > theme.radius.media);
     assert.equal(theme.radius.badge * 2 >= theme.type.index, true);
     const steps = [
@@ -143,6 +139,9 @@ describe("visual tokens", () => {
     assert.match(sheet, /button\[disabled\]\.btn-primary/);
     assert.match(sheet, /\.btn-muted\s*,\s*button\[disabled\]\.btn-primary/);
     assert.match(sheet, /\.ordinal\s*\{[^}]*var\(--size-ordinal\)/);
+    assert.match(sheet, /\.ordinal\s*\{[^}]*border-radius:\s*var\(--radius-pill\)/);
+    assert.match(sheet, /\.btn-primary\s*,\s*\.btn-outline\s*\{[^}]*height:\s*96rpx/);
+    assert.match(sheet, /\.btn-primary\s*,\s*\.btn-outline\s*\{[^}]*var\(--radius-control\)/);
     assert.equal(theme.size.ordinal, 48);
     assert.match(captureMarkup, /class="ordinal"/);
     assert.match(reportMarkup, /class="ordinal"/);
@@ -158,9 +157,43 @@ describe("visual tokens", () => {
     assert.match(report, /var\(--type-display\)/);
     assert.doesNotMatch(read("src/share-card.ts"), /#[0-9a-fA-F]{3,8}\b/);
     assert.doesNotMatch(read("src/share-card.ts"), /\bMUTED\b/);
+    assert.match(capture, /\.slot\s*\{[^}]*border:\s*2rpx solid var\(--color-line\)/);
+    assert.match(capture, /\.slot-filled\s*,\s*\.slot-warn\s*\{[^}]*border-color:\s*var\(--color-primary\)/);
+    assert.doesNotMatch(capture, /dashed/);
+    assert.doesNotMatch(capture, /\.slot-warn\s*\{[^}]*background/);
+    assert.match(capture, /\.retake\s*\{[^}]*var\(--color-surface\)/);
+    assert.doesNotMatch(capture, /\.retake\s*\{[^}]*var\(--color-primary-soft\)/);
+    assert.match(capture, /\.title\s*\{[^}]*font-weight:\s*600/);
+    assert.match(capture, /\.slot-label\s*\{[^}]*font-weight:\s*600/);
+    assert.match(capture, /\.retake-title\s*\{[^}]*font-weight:\s*600/);
+    assert.match(report, /\.disclaimer-kicker\s*\{[^}]*font-weight:\s*600/);
+    assert.match(report, /\.disclaimer-kicker\s*\{[^}]*var\(--color-primary-ink\)/);
+    assert.match(report, /\.disclaimer-body\s*\{[^}]*var\(--color-ink-secondary\)/);
+    assert.match(report, /\.tag\s*\{[^}]*var\(--color-primary-soft\)/);
+    assert.match(report, /\.tag\s*\{[^}]*var\(--color-ink-secondary\)/);
+    assert.match(report, /\.title\s*\{[^}]*font-weight:\s*600/);
+    assert.match(report, /\.section-title\s*\{[^}]*font-weight:\s*600/);
+    assert.match(report, /\.card-title\s*\{[^}]*font-weight:\s*600/);
+    assert.doesNotMatch(report, /font-weight:\s*700/);
+    const retiredSurfaces = [
+      "src/theme.ts",
+      "src/share-card.ts",
+      "miniprogram/app.wxss",
+      "miniprogram/app.json",
+      "miniprogram/lib/theme.js",
+      "miniprogram/lib/share-card.js",
+      "miniprogram/pages/capture/capture.wxss",
+      "miniprogram/pages/report/report.wxss",
+    ];
+    for (const path of retiredSurfaces) {
+      const source = read(path).toLowerCase();
+      for (const hex of retiredColors) {
+        assert.equal(source.includes(hex), false, `${path} still has ${hex}`);
+      }
+    }
   });
 
-  it("paints the share card with the same light teal tokens", () => {
+  it("paints the share card with the same neutral tokens", () => {
     const layout = layoutShareCard(sampleReport(REPORT_DISCLAIMER));
     assert.ok(layout);
     if (!layout) return;
@@ -173,8 +206,15 @@ describe("visual tokens", () => {
     assert.ok(band && luminance(band.color) > 0.75);
     for (const block of layout.blocks) {
       assert.ok(allowedColors.has(block.color), block.color);
-      if (block.role === "panel") assert.equal(block.radius, theme.radius.card);
-      if (block.role === "badge") assert.equal(block.radius, theme.radius.badge);
+      if (block.role === "panel") {
+        assert.equal(block.color, theme.color.surface);
+        assert.equal(block.radius, theme.radius.card);
+        assert.equal(block.radius, 32);
+      }
+      if (block.role === "badge") {
+        assert.equal(block.color, theme.color.primary);
+        assert.equal(block.radius, theme.radius.badge);
+      }
     }
     for (const line of layout.lines) {
       assert.ok(allowedColors.has(line.color), line.color);
@@ -183,5 +223,14 @@ describe("visual tokens", () => {
     const heading = layout.lines.find((line) => line.role === "disclaimerHeading");
     assert.equal(heading?.color, theme.color.primaryInk);
     assert.equal(heading?.fontSize, theme.type.display);
+    for (const line of layout.lines.filter((item) => item.role === "disclaimer")) {
+      assert.equal(line.color, theme.color.inkSecondary);
+    }
+    for (const line of layout.lines.filter((item) => item.role === "section")) {
+      assert.equal(line.color, theme.color.primaryInk);
+    }
+    for (const line of layout.lines.filter((item) => item.role === "exerciseIndex")) {
+      assert.equal(line.color, theme.color.onPrimary);
+    }
   });
 });
