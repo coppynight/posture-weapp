@@ -236,6 +236,20 @@ describe("share card layout", () => {
     }
     assert.ok(band.y + band.height < HEIGHT * 0.45);
 
+    const sections = layout.lines.filter((line) => line.role === "section");
+    assert.deepEqual(
+      sections.map((line) => line.text),
+      ["总览", "问题", "动作"],
+    );
+    assert.ok(sections[0] && sections[1] && sections[2]);
+    assert.ok(sections[0]!.y < sections[1]!.y && sections[1]!.y < sections[2]!.y);
+    const headingLine = layout.lines.find((line) => line.role === "disclaimerHeading");
+    const overviewIssue = layout.lines.find((line) => line.role === "overviewIssue");
+    assert.ok(headingLine && overviewIssue && sections[0]!.y < headingLine.y && headingLine.y < overviewIssue.y);
+    assert.ok(overviewIssue.y < sections[1]!.y);
+    assert.equal(textOf(layout, "overviewIssue"), "头前引");
+    assert.equal(textOf(layout, "overviewSeverity"), "中等");
+    assert.equal(textOf(layout, "overviewCounts"), "2 个问题 · 4 个动作");
     assert.equal(textOf(layout, "leadTitle"), "头前引");
     assert.equal(textOf(layout, "leadDetail"), report.issues[0]?.detail);
     assert.match(textOf(layout, "severity"), /中等/);
@@ -290,6 +304,11 @@ describe("share card layout", () => {
     assert.ok(layout);
     if (!layout) return;
     assert.equal(textOf(layout, "leadTitle"), "双肩向前内扣并带动胸椎变圆");
+    assert.equal(textOf(layout, "overviewIssue"), "双肩向前内扣并带动胸椎变圆");
+    assert.deepEqual(
+      layout.lines.filter((line) => line.role === "section").map((line) => line.text),
+      ["总览", "问题", "动作"],
+    );
     assert.equal(textOf(layout, "disclaimer"), REPORT_DISCLAIMER);
     assert.equal(textOf(layout, "disclaimerHeading"), "非医疗诊断");
     let names = textOf(layout, "exerciseName");

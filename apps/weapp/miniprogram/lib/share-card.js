@@ -30,13 +30,13 @@ const PAD = 36;
 const CONTENT_WIDTH = exports.SHARE_CARD_WIDTH - PAD * 2;
 const BOTTOM_GAP = 28;
 const ATTEMPTS = [
-    { detailLines: 3, tipLines: 2, showOthers: true },
-    { detailLines: 2, tipLines: 2, showOthers: true },
-    { detailLines: 2, tipLines: 1, showOthers: true },
-    { detailLines: 1, tipLines: 1, showOthers: false },
-    { detailLines: 1, tipLines: 0, showOthers: false },
+    { detailLines: 3, tipLines: 2, showOthers: true, showCounts: true },
+    { detailLines: 2, tipLines: 2, showOthers: true, showCounts: true },
+    { detailLines: 2, tipLines: 1, showOthers: true, showCounts: true },
+    { detailLines: 1, tipLines: 1, showOthers: true, showCounts: false },
+    { detailLines: 1, tipLines: 1, showOthers: false, showCounts: false },
+    { detailLines: 1, tipLines: 0, showOthers: false, showCounts: false },
 ];
-const SEVERITY_RANK = { mild: 1, moderate: 2, marked: 3 };
 /** Full-width CJK metrics. Device fonts are at most this wide, so wrapped lines stay inside the poster. */
 function estimateTextWidth(text, fontSize, _weight) {
     var _a;
@@ -139,7 +139,7 @@ async function saveShareCard(report, deps) {
 function isPaintable(report) {
     if (!report || typeof report.disclaimer !== "string" || report.disclaimer.trim() === "")
         return false;
-    if (!leadIssue(report.issues))
+    if (!(0, present_js_1.primaryIssue)(report.issues))
         return false;
     if (!Array.isArray(report.exerciseSuggestions))
         return false;
@@ -153,7 +153,7 @@ function drawnText(value) {
     return typeof value === "string" ? value.trim() : "";
 }
 function compose(report, measure, attempt) {
-    const lead = leadIssue(report.issues);
+    const lead = (0, present_js_1.primaryIssue)(report.issues);
     if (!lead)
         return null;
     const blocks = [
@@ -163,14 +163,16 @@ function compose(report, measure, attempt) {
     const bandHeight = paintDisclaimer(blocks, lines, report.disclaimer, measure);
     if (bandHeight === null)
         return null;
-    let cursor = bandHeight + 28;
+    let cursor = bandHeight + 16;
     cursor = placeText(lines, "title", copy_js_1.COPY.shareTitle, PAD, cursor, theme_js_1.theme.type.posterTitle, "bold", INK, CONTENT_WIDTH, null, measure);
     cursor += 8;
-    cursor = placeText(lines, "section", copy_js_1.COPY.shareLead, PAD, cursor, theme_js_1.theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
+    cursor = paintOverviewLead(lines, lead, report, attempt, cursor, measure);
+    cursor += 14;
+    cursor = placeText(lines, "section", copy_js_1.COPY.sectionProblem, PAD, cursor, theme_js_1.theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
     cursor += 8;
     cursor = paintLead(blocks, lines, lead, report.issues, attempt, cursor, measure);
-    cursor += 16;
-    cursor = placeText(lines, "section", copy_js_1.COPY.shareExercises, PAD, cursor, theme_js_1.theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
+    cursor += 12;
+    cursor = placeText(lines, "section", copy_js_1.COPY.sectionAction, PAD, cursor, theme_js_1.theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
     cursor += 8;
     report.exerciseSuggestions.forEach((exercise, index) => {
         cursor = paintExercise(blocks, lines, exercise, index + 1, attempt.tipLines, cursor, measure);
@@ -180,18 +182,21 @@ function compose(report, measure, attempt) {
     return { width: exports.SHARE_CARD_WIDTH, height: exports.SHARE_CARD_HEIGHT, blocks, lines };
 }
 function paintDisclaimer(blocks, lines, disclaimer, measure) {
+    const sectionSize = theme_js_1.theme.type.subhead;
     const bodySize = theme_js_1.theme.type.reading;
     const headingSize = theme_js_1.theme.type.display;
     const body = wrapText(disclaimer, CONTENT_WIDTH, bodySize, "normal", measure, null);
     if (body.join("") !== disclaimer.replace(/\n/g, ""))
         return null;
-    const top = 32;
-    const headingY = top;
+    const top = 28;
+    const sectionY = top;
+    const headingY = sectionY + lineHeight(sectionSize) + 8;
     const bodyY = headingY + lineHeight(headingSize) + 12;
-    const bandHeight = bodyY + body.length * lineHeight(bodySize) + 32;
+    const bandHeight = bodyY + body.length * lineHeight(bodySize) + 24;
     if (bandHeight > exports.SHARE_CARD_HEIGHT * 0.5)
         return null;
     blocks.push({ role: "disclaimer", x: 0, y: 0, width: exports.SHARE_CARD_WIDTH, height: bandHeight, color: BAND });
+    placeText(lines, "section", copy_js_1.COPY.sectionOverview, PAD, sectionY, sectionSize, "bold", BAND_HEADING, CONTENT_WIDTH, null, measure);
     placeText(lines, "disclaimerHeading", copy_js_1.COPY.disclaimerHeading, PAD, headingY, headingSize, "bold", BAND_HEADING, CONTENT_WIDTH, null, measure);
     body.forEach((text, index) => {
         lines.push({
@@ -205,6 +210,40 @@ function paintDisclaimer(blocks, lines, disclaimer, measure) {
         });
     });
     return bandHeight;
+}
+function paintOverviewLead(lines, lead, report, attempt, cursor, measure) {
+    const title = drawnText(lead.title);
+    const titleSize = theme_js_1.theme.type.section;
+    const severity = (0, present_js_1.severityLabel)(lead.severity);
+    const severitySize = theme_js_1.theme.type.caption;
+    const titleWidth = measure(title, titleSize, "bold");
+    const severityWidth = severity ? measure(severity, severitySize, "bold") : 0;
+    const gap = 16;
+    if (severity && titleWidth + gap + severityWidth <= CONTENT_WIDTH) {
+        lines.push({ role: "overviewIssue", text: title, x: PAD, y: cursor, fontSize: titleSize, weight: "bold", color: INK });
+        lines.push({
+            role: "overviewSeverity",
+            text: severity,
+            x: PAD + titleWidth + gap,
+            y: cursor + Math.max(0, (lineHeight(titleSize) - lineHeight(severitySize)) / 2),
+            fontSize: severitySize,
+            weight: "bold",
+            color: ACCENT,
+        });
+        cursor += lineHeight(titleSize);
+    }
+    else {
+        cursor = placeText(lines, "overviewIssue", title, PAD, cursor, titleSize, "bold", INK, CONTENT_WIDTH, null, measure);
+        if (severity) {
+            cursor += 4;
+            cursor = placeText(lines, "overviewSeverity", severity, PAD, cursor, severitySize, "bold", ACCENT, CONTENT_WIDTH, 1, measure);
+        }
+    }
+    if (attempt.showCounts) {
+        cursor += 6;
+        cursor = placeText(lines, "overviewCounts", (0, present_js_1.sectionCountLine)(report.issues.length, report.exerciseSuggestions.length), PAD, cursor, theme_js_1.theme.type.caption, "normal", SECONDARY, CONTENT_WIDTH, 1, measure);
+    }
+    return cursor;
 }
 function paintLead(blocks, lines, lead, issues, attempt, cursor, measure) {
     const panel = openPanel(blocks, cursor);
@@ -233,7 +272,7 @@ function paintExercise(blocks, lines, exercise, index, tipLines, cursor, measure
     const panel = openPanel(blocks, cursor);
     const badgeSize = theme_js_1.theme.radius.badge * 2;
     const innerLeft = PAD + 16;
-    const badgeY = cursor + 16;
+    const badgeY = cursor + 12;
     blocks.push({
         role: "badge",
         x: innerLeft,
@@ -263,7 +302,7 @@ function paintExercise(blocks, lines, exercise, index, tipLines, cursor, measure
         inner = placeText(lines, "exerciseTip", drawnText(exercise.instruction), nameX, inner, theme_js_1.theme.type.caption, "normal", SECONDARY, nameWidth, tipLines, measure);
     }
     const contentBottom = Math.max(inner, badgeY + badgeSize);
-    return closePanel(panel, contentBottom, cursor) + 12;
+    return closePanel(panel, contentBottom, cursor) + 8;
 }
 function openPanel(blocks, cursor) {
     const panel = {
@@ -301,19 +340,6 @@ function fits(layout, measure) {
             return false;
         return line.x + measure(line.text, line.fontSize, line.weight) <= exports.SHARE_CARD_WIDTH - 24;
     });
-}
-function leadIssue(issues) {
-    var _a, _b;
-    if (!Array.isArray(issues))
-        return null;
-    let best = null;
-    for (const issue of issues) {
-        if (drawnText(issue === null || issue === void 0 ? void 0 : issue.title) === "")
-            continue;
-        if (!best || ((_a = SEVERITY_RANK[issue.severity]) !== null && _a !== void 0 ? _a : 0) > ((_b = SEVERITY_RANK[best.severity]) !== null && _b !== void 0 ? _b : 0))
-            best = issue;
-    }
-    return best;
 }
 function lineHeight(fontSize) {
     return Math.ceil(fontSize * 1.35);

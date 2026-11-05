@@ -79,12 +79,17 @@ describe("interpret T2 responses", () => {
     assert.equal(JSON.stringify(outcome).includes("头前引"), false);
 
     const store = createSessionStore();
+    store.replaceShot({ view: "front", tempFilePath: "wxfile://front.jpg", mediaType: "image/jpeg" });
+    store.replaceShot({ view: "side", tempFilePath: "wxfile://side.jpg", mediaType: "image/jpeg" });
     store.setRetake(outcome.retakeGuidance);
-    const view = captureView(store.get());
+    const view = captureView(store.get(), "side");
+    assert.equal(view.step, "side");
     assert.equal(view.retake?.summary, guidance.summary);
     assert.deepEqual(view.retake?.checklist, guidance.checklist);
-    assert.equal(view.side.needsRetake, true);
-    assert.equal(view.front.needsRetake, false);
+    assert.deepEqual(view.retake?.messages, guidance.shots[0]?.messages);
+    assert.equal(view.slot.needsRetake, true);
+    assert.equal(view.slot.view, "side");
+    assert.equal(captureView(store.get(), "front").retake, null);
     assert.equal("issues" in (view.retake ?? {}), false);
   });
 
