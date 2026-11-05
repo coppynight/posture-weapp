@@ -33,11 +33,15 @@ describe("guest client against T2", () => {
       assert.equal(view.disclaimerProminent, true);
       assert.equal(view.disclaimerHeading, "非医疗诊断");
       assert.equal(view.disclaimer, REPORT_DISCLAIMER);
-      assert.ok(view.issues.length >= 1);
-      assert.ok(view.causes.length >= 1);
+      assert.equal(view.overviewTitle, "总览");
+      assert.equal(view.problemTitle, "问题");
+      assert.equal(view.actionTitle, "动作");
+      assert.equal(view.overviewIssue?.title, "头前引");
+      assert.ok(view.problems.length >= 1);
+      assert.ok((view.problems[0]?.guesses.length ?? 0) >= 1);
       assert.ok(view.exercises.length >= 3);
       assert.ok(view.exercises.length <= 5);
-      assert.equal(view.issues[0]?.title, "头前引");
+      assert.equal(view.problems[0]?.title, "头前引");
       assert.equal(provider.calls.length, 1);
     } finally {
       await close(server);

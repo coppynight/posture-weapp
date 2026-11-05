@@ -48,6 +48,8 @@ try {
   const view = reportView(reportOutcome.report);
   assert.equal(view.disclaimer, REPORT_DISCLAIMER);
   assert.equal(view.disclaimerProminent, true);
+  assert.deepEqual([view.overviewTitle, view.problemTitle, view.actionTitle], ["总览", "问题", "动作"]);
+  assert.ok(view.problems.length >= 1);
   assert.ok(view.exercises.length >= 3 && view.exercises.length <= 5);
   const card = layoutShareCard(reportOutcome.report);
   assert.ok(card);
@@ -56,6 +58,9 @@ try {
   assert.equal(card.height, SHARE_CARD_HEIGHT);
   const cardText = card.lines.map((line) => line.text).join("");
   assert.equal(cardText.includes("非医疗诊断"), true);
+  assert.equal(cardText.includes("总览"), true);
+  assert.equal(cardText.includes("问题"), true);
+  assert.equal(cardText.includes("动作"), true);
   assert.equal(cardText.includes(reportOutcome.report.disclaimer), true);
   for (const exercise of reportOutcome.report.exerciseSuggestions) {
     assert.equal(cardText.includes(exercise.name), true);
@@ -74,7 +79,7 @@ try {
   assert.equal(provider.calls.length, 1);
 
   console.log("weapp smoke ok");
-  console.log(`report issue=${view.issues[0]?.title ?? ""} exercises=${view.exercises.length}`);
+  console.log(`report issue=${view.overviewIssue?.title ?? ""} exercises=${view.exercises.length}`);
   console.log(`disclaimer=${view.disclaimerHeading}`);
   console.log(`share=${SHARE_SAVE_API} ${card.width}x${card.height}`);
   console.log(`retake=${retakeOutcome.retakeGuidance.code} ${retakeOutcome.retakeGuidance.summary}`);

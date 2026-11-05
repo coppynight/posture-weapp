@@ -1,33 +1,45 @@
-<view wx:if="{{disclaimer}}" class="disclaimer-banner">
-  <text class="disclaimer-kicker">{{disclaimerHeading}}</text>
-  <text class="disclaimer-body">{{disclaimer}}</text>
-</view>
-
 <view class="page">
   <text class="title">{{title}}</text>
 
-  <view class="section section-issues">
-    <text class="section-title">{{issuesTitle}}</text>
-    <view wx:for="{{issues}}" wx:key="title" class="card">
+  <view class="section section-overview">
+    <view class="section-head">
+      <text class="ordinal">1</text>
+      <text class="section-title">{{overviewTitle}}</text>
+    </view>
+    <view class="card overview-card">
+      <view class="disclaimer-block">
+        <text class="disclaimer-kicker">{{disclaimerHeading}}</text>
+        <text class="disclaimer-body">{{disclaimer}}</text>
+      </view>
+      <view wx:if="{{overviewIssue.title}}" class="overview-lead">
+        <text class="card-title">{{overviewIssue.title}}</text>
+        <text class="tag">{{overviewIssue.severityLabel}}</text>
+      </view>
+      <text class="counts">{{countsLabel}}</text>
+    </view>
+  </view>
+
+  <view class="section section-problem">
+    <view class="section-head">
+      <text class="ordinal">2</text>
+      <text class="section-title">{{problemTitle}}</text>
+    </view>
+    <text class="section-note">{{causesNote}}</text>
+    <view wx:for="{{problems}}" wx:key="key" class="card">
       <view class="card-top">
         <text class="card-title">{{item.title}}</text>
-        <text class="tag">{{item.severityLabel}}</text>
+        <text wx:if="{{item.severityLabel}}" class="tag">{{item.severityLabel}}</text>
       </view>
-      <text class="card-body">{{item.detail}}</text>
+      <text wx:if="{{item.detail}}" class="card-body">{{item.detail}}</text>
+      <text wx:for="{{item.guesses}}" wx:for-item="guess" wx:key="text" class="guess">{{guess.text}}</text>
     </view>
   </view>
 
-  <view class="section section-causes">
-    <text class="section-title">{{causesTitle}}</text>
-    <text class="section-note">{{causesNote}}</text>
-    <view wx:for="{{causes}}" wx:for-index="causeIndex" wx:key="causeIndex" class="card">
-      <text wx:if="{{item.related}}" class="related">{{item.related}}</text>
-      <text class="card-body">{{item.guess}}</text>
+  <view class="section section-action">
+    <view class="section-head">
+      <text class="ordinal">3</text>
+      <text class="section-title">{{actionTitle}}</text>
     </view>
-  </view>
-
-  <view class="section section-exercises">
-    <text class="section-title">{{exercisesTitle}}</text>
     <view wx:for="{{exercises}}" wx:key="key" class="card exercise">
       <view class="card-top">
         <text class="ordinal">{{item.index}}</text>
@@ -38,10 +50,12 @@
     </view>
   </view>
 
-  <text class="session-note">{{sessionNote}}</text>
-  <button class="btn-primary share-save" bindtap="onSaveShare" disabled="{{sharing}}">{{sharing ? shareSavingLabel : shareLabel}}</button>
-  <text class="share-hint">{{shareHint}}</text>
-  <button class="btn-outline share-again" bindtap="onAgain">{{againLabel}}</button>
+  <view class="report-footer">
+    <text class="session-note">{{sessionNote}}</text>
+    <button class="btn-primary share-save" bindtap="onSaveShare" disabled="{{sharing}}">{{sharing ? shareSavingLabel : shareLabel}}</button>
+    <text class="share-hint">{{shareHint}}</text>
+    <button class="btn-outline share-again" bindtap="onAgain">{{againLabel}}</button>
+  </view>
 </view>
 
 <canvas type="2d" id="share-card" class="share-canvas"></canvas>

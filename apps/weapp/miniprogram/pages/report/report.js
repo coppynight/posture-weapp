@@ -12,11 +12,17 @@ function session() {
 
 Page({
   data: {
+    title: "",
+    overviewTitle: "",
     disclaimerHeading: "",
     disclaimer: "",
     disclaimerProminent: true,
-    issues: [],
-    causes: [],
+    overviewIssue: { title: "", severityLabel: "" },
+    countsLabel: "",
+    problemTitle: "",
+    causesNote: "",
+    problems: [],
+    actionTitle: "",
     exercises: [],
     sharing: false,
   },

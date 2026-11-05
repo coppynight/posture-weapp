@@ -37,6 +37,11 @@ describe("emitted mini program lib", () => {
     });
     assert.equal(view.disclaimerProminent, true);
     assert.equal(view.disclaimerHeading, "非医疗诊断");
+    assert.equal(view.overviewTitle, "总览");
+    assert.equal(view.problemTitle, "问题");
+    assert.equal(view.actionTitle, "动作");
+    assert.equal(view.overviewIssue?.title, "头前引");
+    assert.equal(view.problems.at(-1)?.title, "未对应到某个问题");
   });
 
   it("emits the album save path", () => {

@@ -1,5 +1,5 @@
 import { COPY } from "./copy.js";
-import { severityLabel } from "./present.js";
+import { primaryIssue, sectionCountLine, severityLabel } from "./present.js";
 import { theme } from "./theme.js";
 import type { ExerciseSuggestion, PostureIssue, Report } from "./types.js";
 
@@ -39,6 +39,9 @@ export type ShareLineRole =
   | "disclaimer"
   | "title"
   | "section"
+  | "overviewIssue"
+  | "overviewSeverity"
+  | "overviewCounts"
   | "leadTitle"
   | "severity"
   | "leadDetail"
@@ -105,17 +108,18 @@ interface Attempt {
   detailLines: number;
   tipLines: number;
   showOthers: boolean;
+  /** The wireframe allows dropping the count line when the poster cannot fit it. The primary title stays. */
+  showCounts: boolean;
 }
 
 const ATTEMPTS: readonly Attempt[] = [
-  { detailLines: 3, tipLines: 2, showOthers: true },
-  { detailLines: 2, tipLines: 2, showOthers: true },
-  { detailLines: 2, tipLines: 1, showOthers: true },
-  { detailLines: 1, tipLines: 1, showOthers: false },
-  { detailLines: 1, tipLines: 0, showOthers: false },
+  { detailLines: 3, tipLines: 2, showOthers: true, showCounts: true },
+  { detailLines: 2, tipLines: 2, showOthers: true, showCounts: true },
+  { detailLines: 2, tipLines: 1, showOthers: true, showCounts: true },
+  { detailLines: 1, tipLines: 1, showOthers: true, showCounts: false },
+  { detailLines: 1, tipLines: 1, showOthers: false, showCounts: false },
+  { detailLines: 1, tipLines: 0, showOthers: false, showCounts: false },
 ];
-
-const SEVERITY_RANK: Record<string, number> = { mild: 1, moderate: 2, marked: 3 };
 
 /** Full-width CJK metrics. Device fonts are at most this wide, so wrapped lines stay inside the poster. */
 export function estimateTextWidth(text: string, fontSize: number, _weight: TextWeight): number {
@@ -212,7 +216,7 @@ export async function saveShareCard(
 /** Display gate only. Count, version, and unused fields stay on the T1 report contract. */
 function isPaintable(report: Report): boolean {
   if (!report || typeof report.disclaimer !== "string" || report.disclaimer.trim() === "") return false;
-  if (!leadIssue(report.issues)) return false;
+  if (!primaryIssue(report.issues)) return false;
   if (!Array.isArray(report.exerciseSuggestions)) return false;
   return report.exerciseSuggestions.every((exercise) => {
     if (!exercise) return false;
@@ -225,7 +229,7 @@ function drawnText(value: unknown): string {
 }
 
 function compose(report: Report, measure: TextMeasure, attempt: Attempt): ShareCardLayout | null {
-  const lead = leadIssue(report.issues);
+  const lead = primaryIssue(report.issues);
   if (!lead) return null;
   const blocks: ShareBlock[] = [
     { role: "background", x: 0, y: 0, width: SHARE_CARD_WIDTH, height: SHARE_CARD_HEIGHT, color: BACKGROUND },
@@ -234,14 +238,16 @@ function compose(report: Report, measure: TextMeasure, attempt: Attempt): ShareC
   const bandHeight = paintDisclaimer(blocks, lines, report.disclaimer, measure);
   if (bandHeight === null) return null;
 
-  let cursor = bandHeight + 28;
+  let cursor = bandHeight + 16;
   cursor = placeText(lines, "title", COPY.shareTitle, PAD, cursor, theme.type.posterTitle, "bold", INK, CONTENT_WIDTH, null, measure);
   cursor += 8;
-  cursor = placeText(lines, "section", COPY.shareLead, PAD, cursor, theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
+  cursor = paintOverviewLead(lines, lead, report, attempt, cursor, measure);
+  cursor += 14;
+  cursor = placeText(lines, "section", COPY.sectionProblem, PAD, cursor, theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
   cursor += 8;
   cursor = paintLead(blocks, lines, lead, report.issues, attempt, cursor, measure);
-  cursor += 16;
-  cursor = placeText(lines, "section", COPY.shareExercises, PAD, cursor, theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
+  cursor += 12;
+  cursor = placeText(lines, "section", COPY.sectionAction, PAD, cursor, theme.type.subhead, "bold", ACCENT, CONTENT_WIDTH, null, measure);
   cursor += 8;
   report.exerciseSuggestions.forEach((exercise, index) => {
     cursor = paintExercise(blocks, lines, exercise, index + 1, attempt.tipLines, cursor, measure);
@@ -257,16 +263,19 @@ function paintDisclaimer(
   disclaimer: string,
   measure: TextMeasure,
 ): number | null {
+  const sectionSize = theme.type.subhead;
   const bodySize = theme.type.reading;
   const headingSize = theme.type.display;
   const body = wrapText(disclaimer, CONTENT_WIDTH, bodySize, "normal", measure, null);
   if (body.join("") !== disclaimer.replace(/\n/g, "")) return null;
-  const top = 32;
-  const headingY = top;
+  const top = 28;
+  const sectionY = top;
+  const headingY = sectionY + lineHeight(sectionSize) + 8;
   const bodyY = headingY + lineHeight(headingSize) + 12;
-  const bandHeight = bodyY + body.length * lineHeight(bodySize) + 32;
+  const bandHeight = bodyY + body.length * lineHeight(bodySize) + 24;
   if (bandHeight > SHARE_CARD_HEIGHT * 0.5) return null;
   blocks.push({ role: "disclaimer", x: 0, y: 0, width: SHARE_CARD_WIDTH, height: bandHeight, color: BAND });
+  placeText(lines, "section", COPY.sectionOverview, PAD, sectionY, sectionSize, "bold", BAND_HEADING, CONTENT_WIDTH, null, measure);
   placeText(lines, "disclaimerHeading", COPY.disclaimerHeading, PAD, headingY, headingSize, "bold", BAND_HEADING, CONTENT_WIDTH, null, measure);
   body.forEach((text, index) => {
     lines.push({
@@ -280,6 +289,59 @@ function paintDisclaimer(
     });
   });
   return bandHeight;
+}
+
+function paintOverviewLead(
+  lines: ShareLine[],
+  lead: PostureIssue,
+  report: Report,
+  attempt: Attempt,
+  cursor: number,
+  measure: TextMeasure,
+): number {
+  const title = drawnText(lead.title);
+  const titleSize = theme.type.section;
+  const severity = severityLabel(lead.severity);
+  const severitySize = theme.type.caption;
+  const titleWidth = measure(title, titleSize, "bold");
+  const severityWidth = severity ? measure(severity, severitySize, "bold") : 0;
+  const gap = 16;
+  if (severity && titleWidth + gap + severityWidth <= CONTENT_WIDTH) {
+    lines.push({ role: "overviewIssue", text: title, x: PAD, y: cursor, fontSize: titleSize, weight: "bold", color: INK });
+    lines.push({
+      role: "overviewSeverity",
+      text: severity,
+      x: PAD + titleWidth + gap,
+      y: cursor + Math.max(0, (lineHeight(titleSize) - lineHeight(severitySize)) / 2),
+      fontSize: severitySize,
+      weight: "bold",
+      color: ACCENT,
+    });
+    cursor += lineHeight(titleSize);
+  } else {
+    cursor = placeText(lines, "overviewIssue", title, PAD, cursor, titleSize, "bold", INK, CONTENT_WIDTH, null, measure);
+    if (severity) {
+      cursor += 4;
+      cursor = placeText(lines, "overviewSeverity", severity, PAD, cursor, severitySize, "bold", ACCENT, CONTENT_WIDTH, 1, measure);
+    }
+  }
+  if (attempt.showCounts) {
+    cursor += 6;
+    cursor = placeText(
+      lines,
+      "overviewCounts",
+      sectionCountLine(report.issues.length, report.exerciseSuggestions.length),
+      PAD,
+      cursor,
+      theme.type.caption,
+      "normal",
+      SECONDARY,
+      CONTENT_WIDTH,
+      1,
+      measure,
+    );
+  }
+  return cursor;
 }
 
 function paintLead(
@@ -326,7 +388,7 @@ function paintExercise(
   const panel = openPanel(blocks, cursor);
   const badgeSize = theme.radius.badge * 2;
   const innerLeft = PAD + 16;
-  const badgeY = cursor + 16;
+  const badgeY = cursor + 12;
   blocks.push({
     role: "badge",
     x: innerLeft,
@@ -368,7 +430,7 @@ function paintExercise(
     );
   }
   const contentBottom = Math.max(inner, badgeY + badgeSize);
-  return closePanel(panel, contentBottom, cursor) + 12;
+  return closePanel(panel, contentBottom, cursor) + 8;
 }
 
 function openPanel(blocks: ShareBlock[], cursor: number): ShareBlock {
@@ -419,16 +481,6 @@ function fits(layout: ShareCardLayout, measure: TextMeasure): boolean {
     if (line.y + line.fontSize > SHARE_CARD_HEIGHT - BOTTOM_GAP) return false;
     return line.x + measure(line.text, line.fontSize, line.weight) <= SHARE_CARD_WIDTH - 24;
   });
-}
-
-function leadIssue(issues: readonly PostureIssue[]): PostureIssue | null {
-  if (!Array.isArray(issues)) return null;
-  let best: PostureIssue | null = null;
-  for (const issue of issues) {
-    if (drawnText(issue?.title) === "") continue;
-    if (!best || (SEVERITY_RANK[issue.severity] ?? 0) > (SEVERITY_RANK[best.severity] ?? 0)) best = issue;
-  }
-  return best;
 }
 
 function lineHeight(fontSize: number): number {

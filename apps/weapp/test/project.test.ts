@@ -42,17 +42,41 @@ describe("mini program shell", () => {
     }
   });
 
-  it("puts a sticky disclaimer banner above the findings", () => {
+  it("reads the report as overview, then problems, then actions", () => {
     const wxml = read("miniprogram/pages/report/report.wxml");
-    const banner = wxml.indexOf("disclaimer-banner");
-    const issues = wxml.indexOf("section-issues");
-    assert.ok(banner >= 0 && issues > banner);
+    const overview = wxml.indexOf("section-overview");
+    const problem = wxml.indexOf("section-problem");
+    const action = wxml.indexOf("section-action");
+    const disclaimer = wxml.indexOf("disclaimer-kicker");
+    const footer = wxml.indexOf("report-footer");
+    assert.ok(overview >= 0 && disclaimer > overview && problem > disclaimer && action > problem && footer > action);
     assert.match(wxml, /\{\{disclaimer\}\}/);
     assert.match(wxml, /\{\{disclaimerHeading\}\}/);
+    assert.match(wxml, /\{\{overviewTitle\}\}/);
+    assert.match(wxml, /\{\{problemTitle\}\}/);
+    assert.match(wxml, /\{\{actionTitle\}\}/);
+    assert.match(wxml, /\{\{countsLabel\}\}/);
+    assert.match(wxml, /\{\{causesNote\}\}/);
     const style = read("miniprogram/pages/report/report.wxss");
-    assert.match(style, /position:\s*sticky/);
     assert.match(style, /var\(--color-primary-soft\)/);
     assert.match(style, /var\(--type-display\)/);
+    assert.doesNotMatch(style, /position:\s*sticky/);
+  });
+
+  it("shows one capture step and one photo slot", () => {
+    const wxml = read("miniprogram/pages/capture/capture.wxml");
+    const page = read("miniprogram/pages/capture/capture.js");
+    assert.equal(wxml.match(/class="slot /g)?.length, 1);
+    assert.match(wxml, /data-view="\{\{slot\.view\}\}"/);
+    assert.doesNotMatch(wxml, /data-view="front"/);
+    assert.doesNotMatch(wxml, /data-view="side"/);
+    assert.match(wxml, /bindtap="onNext"/);
+    assert.match(wxml, /bindtap="onBackFront"/);
+    assert.match(wxml, /class="guide"/);
+    assert.match(page, /step=side/);
+    assert.match(page, /navigateBack/);
+    assert.match(page, /routeAfterRetake/);
+    assert.match(page, /resolveCaptureStep/);
   });
 
   it("keeps visible markup in Chinese", () => {
@@ -72,7 +96,7 @@ describe("mini program shell", () => {
     assert.match(wxml, /class="share-hint"/);
     assert.match(wxml, /type="2d"/);
     assert.match(wxml, /id="share-card"/);
-    assert.ok(wxml.indexOf("disclaimer-banner") < wxml.indexOf("onSaveShare"));
+    assert.ok(wxml.indexOf("section-overview") < wxml.indexOf("onSaveShare"));
     assert.match(page, /services\/share-card\.js/);
     assert.match(page, /holdSession/);
     assert.doesNotMatch(page, /wx\.saveImageToPhotosAlbum|wx\.canvasToTempFilePath|wx\.createOffscreenCanvas|wx\.openSetting|wx\.showModal/);

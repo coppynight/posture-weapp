@@ -1,10 +1,54 @@
-.disclaimer-banner {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  padding: 32rpx 32rpx 36rpx;
-  background: var(--color-primary-soft);
+.page {
+  padding: 36rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.title {
+  display: block;
+  font-size: var(--type-title);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.section {
+  margin-top: 40rpx;
+}
+
+.section-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.section-title {
   color: var(--color-ink);
+  font-size: var(--type-section);
+  font-weight: 700;
+}
+
+.section-note {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--color-muted);
+  font-size: var(--type-caption);
+  line-height: 1.5;
+}
+
+.card {
+  margin-top: 16rpx;
+  padding: 28rpx;
+  background: var(--color-surface);
+  border: 2rpx solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.overview-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.disclaimer-block {
+  padding: 32rpx 28rpx 36rpx;
+  background: var(--color-primary-soft);
 }
 
 .disclaimer-kicker {
@@ -24,41 +68,19 @@
   line-height: 1.65;
 }
 
-.page {
-  padding: 36rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+.overview-lead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 28rpx 28rpx 0;
 }
 
-.title {
+.counts {
   display: block;
-  font-size: var(--type-title);
+  padding: 16rpx 28rpx 28rpx;
+  color: var(--color-ink-secondary);
+  font-size: var(--type-reading);
   font-weight: 700;
-  line-height: 1.25;
-}
-
-.section {
-  margin-top: 36rpx;
-}
-
-.section-title {
-  display: block;
-  color: var(--color-ink);
-  font-size: var(--type-section);
-  font-weight: 700;
-}
-
-.section-note {
-  display: block;
-  margin-top: 8rpx;
-  color: var(--color-muted);
-  font-size: var(--type-caption);
-}
-
-.card {
-  margin-top: 16rpx;
-  padding: 24rpx;
-  background: var(--color-surface);
-  border: 2rpx solid var(--color-line);
-  border-radius: var(--radius-card);
 }
 
 .card-top {
@@ -83,6 +105,7 @@
 }
 
 .card-body,
+.guess,
 .related {
   display: block;
   margin-top: 12rpx;
@@ -91,14 +114,22 @@
   line-height: 1.6;
 }
 
+.guess {
+  padding-top: 8rpx;
+  border-top: 2rpx solid var(--color-line);
+}
+
 .related {
   color: var(--color-primary-ink);
   font-size: var(--type-caption);
 }
 
+.report-footer {
+  margin-top: 40rpx;
+}
+
 .session-note {
   display: block;
-  margin-top: 36rpx;
   color: var(--color-muted);
   font-size: var(--type-caption);
   line-height: 1.6;

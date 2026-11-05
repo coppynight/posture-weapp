@@ -23,6 +23,15 @@ describe("guest copy", () => {
     assert.match(COPY.missingSide, /侧面/);
     assert.match(COPY.missingBoth, /不能开始分析/);
     assert.equal(COPY.disclaimerHeading, "非医疗诊断");
+    assert.equal(COPY.frontStepTitle, "拍一张正面全身照");
+    assert.equal(COPY.sideStepTitle, "再拍一张侧面全身照");
+    assert.equal(COPY.nextStep, "下一步");
+    assert.equal(COPY.backToFront, "返回修改正面");
+    assert.equal(COPY.sectionOverview, "总览");
+    assert.equal(COPY.sectionProblem, "问题");
+    assert.equal(COPY.sectionAction, "动作");
+    assert.equal(COPY.unmatchedCause, "未对应到某个问题");
+    assert.match(COPY.sideAlsoRetake, /侧面也要重拍/);
     assert.match(COPY.captureLead, /无需登录/);
     assert.match(COPY.sessionNote, /没有历史列表/);
     assert.equal(COPY.shareSave, "保存分享卡");

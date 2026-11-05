@@ -2,7 +2,16 @@ export { analyzePhotos, analyzeUrl, createFetchTransport, interpretAnalyzeRespon
 export { COPY } from "./copy.js";
 export { endSession, pickImage, removeImage, submitAnalysis } from "./flow.js";
 export { mediaTypeFromPath } from "./media-type.js";
-export { captureView, reportView, REPORT_SECTION_ORDER, severityLabel } from "./present.js";
+export {
+  captureView,
+  primaryIssue,
+  reportView,
+  REPORT_SECTION_ORDER,
+  resolveCaptureStep,
+  routeAfterRetake,
+  sectionCountLine,
+  severityLabel,
+} from "./present.js";
 export { createSessionStore, emptySessionState } from "./session.js";
 export {
   SHARE_CARD_HEIGHT,

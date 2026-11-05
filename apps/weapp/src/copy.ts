@@ -1,11 +1,12 @@
 /**
  * Every guest-facing string in the mini program.
  * Simplified Chinese only. Pages bind these values; they do not hard-code copy.
+ * Step and section sentences follow the confirmed T8 wireframes.
  */
 export const COPY = {
-  captureTitle: "拍两张全身照",
-  captureLead:
-    "拍摄或从相册选择正面、侧面各一张全身照。无需登录。照片和结果只在本次打开期间使用，不会做成历史记录。",
+  frontStepTitle: "拍一张正面全身照",
+  sideStepTitle: "再拍一张侧面全身照",
+  captureLead: "无需登录。照片和结果只在本次打开期间使用。",
   frontLabel: "正面",
   sideLabel: "侧面",
   frontHint: "正对镜头，头顶到脚尖入画",
@@ -15,6 +16,10 @@ export const COPY = {
   reshoot: "重新拍摄",
   reselect: "重新选择",
   remove: "移除",
+  nextStep: "下一步",
+  backToFront: "返回修改正面",
+  frontChosen: "正面已选 · 点按同样回到正面",
+  sideAlsoRetake: "侧面也要重拍。改完正面后，到侧面那一屏继续。",
   submit: "开始分析",
   submitting: "正在分析…",
   needBoth: "需要正面和侧面两张照片，缺一不能分析。",
@@ -35,12 +40,12 @@ export const COPY = {
   checklistTitle: "拍摄核对",
   reportTitle: "本次训练参考",
   disclaimerHeading: "非医疗诊断",
-  issuesTitle: "看到的问题",
-  causesTitle: "可能的原因",
+  sectionOverview: "总览",
+  sectionProblem: "问题",
+  sectionAction: "动作",
+  unmatchedCause: "未对应到某个问题",
   causesNote: "以下为训练向猜测，不是结论。",
-  exercisesTitle: "可以尝试的动作",
   addressesPrefix: "针对",
-  relatedPrefix: "对应",
   severityMild: "轻微",
   severityModerate: "中等",
   severityMarked: "较明显",
@@ -48,8 +53,6 @@ export const COPY = {
   again: "再测一次",
   sessionEnded: "上次的照片和结果已随本次会话清除，请重新拍摄。",
   shareTitle: "本次训练摘要",
-  shareLead: "主要问题",
-  shareExercises: "动作要点",
   shareAlso: "另外",
   shareFooter: "本图由本次报告生成，不含自拍照片。保存到相册后可在微信里转发。",
   shareSave: "保存分享卡",

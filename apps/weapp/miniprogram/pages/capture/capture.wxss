@@ -1,82 +1,123 @@
 .page {
-  padding: 32rpx 32rpx 420rpx;
+  padding: 32rpx 32rpx 520rpx;
 }
 
-.hero {
+.back-link {
+  display: flex;
+  align-items: center;
+  height: 64rpx;
+  margin-bottom: 12rpx;
+  color: var(--color-primary-ink);
+  font-size: var(--type-reading);
+  font-weight: 700;
+}
+
+.front-chip {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 72rpx;
+  margin-bottom: 28rpx;
+  padding: 0 28rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-line);
+  color: var(--color-ink);
+  font-size: var(--type-caption);
+  font-weight: 700;
+}
+
+button[disabled].back-link,
+button[disabled].front-chip {
+  color: var(--color-muted);
+}
+
+.stepper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-bottom: 28rpx;
 }
 
-.eyebrow {
-  display: block;
-  color: var(--color-primary-ink);
+.step-line {
+  width: 36rpx;
+  height: 4rpx;
+  margin-right: 16rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-line);
+}
+
+.step-idle {
+  width: var(--size-ordinal);
+  height: var(--size-ordinal);
+  margin-right: 16rpx;
+  border-radius: var(--radius-pill);
+  border: 2rpx solid var(--color-line);
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--color-muted);
   font-size: var(--type-caption);
+  font-weight: 700;
+  text-align: center;
+  line-height: calc(var(--size-ordinal) - 4rpx);
+}
+
+.step-name {
+  font-size: var(--type-section);
   font-weight: 700;
 }
 
 .title {
   display: block;
-  margin-top: 8rpx;
   font-size: var(--type-title);
   font-weight: 700;
   line-height: 1.25;
 }
 
-.lead {
+.guide {
+  margin-top: 20rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx dashed var(--color-ink-secondary);
+  border-radius: var(--radius-control);
+}
+
+.guide-text {
   display: block;
-  margin-top: 16rpx;
-  color: var(--color-muted);
+  color: var(--color-ink);
   font-size: var(--type-reading);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 .slot {
   margin-top: 24rpx;
-  padding: 28rpx;
+  padding: 20rpx;
   background: var(--color-surface);
-  border: 2rpx dashed var(--color-line);
+  border: 2rpx solid var(--color-line);
   border-radius: var(--radius-card);
 }
 
-.slot-filled {
-  border-style: solid;
-  border-color: var(--color-line);
-}
-
 .slot-warn {
-  border-style: solid;
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
 }
 
-.slot-head {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.slot-copy {
-  flex: 1;
-}
-
-.slot-label {
-  display: block;
-  font-size: var(--type-section);
-  font-weight: 700;
-}
-
-.slot-hint {
-  display: block;
-  margin-top: 4rpx;
-  color: var(--color-muted);
-  font-size: var(--type-caption);
-}
-
-.preview {
+.preview,
+.preview-empty {
   width: 100%;
-  height: 420rpx;
-  margin-top: 20rpx;
+  height: 640rpx;
   border-radius: var(--radius-media);
   background: var(--color-line);
+}
+
+.preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-label {
+  color: var(--color-ink);
+  font-size: var(--type-section);
+  font-weight: 700;
 }
 
 .slot-actions {
@@ -99,6 +140,7 @@
   flex: 1;
   background: var(--color-bg);
   color: var(--color-ink);
+  border: 2rpx solid var(--color-line);
 }
 
 .btn-ghost + .btn-ghost {
@@ -106,14 +148,14 @@
 }
 
 .btn-text {
-  margin-top: 12rpx;
+  margin-top: 8rpx;
   height: 64rpx;
   color: var(--color-primary-ink);
   font-size: var(--type-caption);
 }
 
 .retake {
-  margin-top: 28rpx;
+  margin-top: 24rpx;
   padding: 28rpx;
   background: var(--color-primary-soft);
   border-radius: var(--radius-card);
@@ -129,6 +171,7 @@
 .retake-lead,
 .retake-summary,
 .retake-line,
+.retake-note,
 .check-item {
   display: block;
   margin-top: 12rpx;
@@ -137,14 +180,14 @@
   line-height: 1.55;
 }
 
-.retake-shot {
-  margin-top: 18rpx;
+.retake-note {
+  color: var(--color-primary-ink);
+  font-weight: 700;
 }
 
-.retake-shot-label,
 .checklist-title {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 20rpx;
   font-size: var(--type-reading);
   font-weight: 700;
 }
@@ -159,6 +202,11 @@
   border-top: 2rpx solid var(--color-line);
 }
 
+.guide-bar {
+  margin-top: 0;
+  margin-bottom: 16rpx;
+}
+
 .notice {
   display: block;
   margin-bottom: 12rpx;
@@ -169,11 +217,4 @@
   font-size: var(--type-reading);
   font-weight: 700;
   line-height: 1.5;
-}
-
-.need-both {
-  display: block;
-  margin-bottom: 14rpx;
-  color: var(--color-muted);
-  font-size: var(--type-caption);
 }
